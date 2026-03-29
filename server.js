@@ -1,42 +1,29 @@
-const express = require("express");
-const path = require("path");
-
-const app = express();
-
-// JSON obrigatório
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-
-// FRONTEND
-app.use(express.static(path.join(__dirname, "public")));
-
-// LOGIN SIMPLES (DB fake corrigido)
-const users = [
-  { user: "admin", password: "123" }
-];
-
-app.post("/login", (req, res) => {
-  const { user, password } = req.body;
-
-  const found = users.find(
-    u => u.user === user && u.password === password
-  );
-
-  if (found) {
-    return res.json({ success: true });
-  }
-
-  return res.json({ success: false });
-});
-
-// ROTA PRINCIPAL
-app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "index.html"));
-});
-
-// PORTA COMPATÍVEL (PC + HOSTINGER + GIT)
-const PORT = process.env.PORT || 3000;
-
-app.listen(PORT, () => {
-  console.log("Servidor rodando na porta " + PORT);
+// ROTA PARA RELATÓRIO POR DATA
+app.get('/relatorio', (req, res) => {
+    const { data_inicio, data_fim } = req.query;
+    
+    let query = `
+        SELECT 
+            DATE(data) as data,
+            SUM(CASE WHEN tipo = 'entrada' THEN valor ELSE 0 END) as entradas,
+            SUM(CASE WHEN tipo = 'saida' THEN valor ELSE 0 END) as saidas,
+            SUM(CASE WHEN tipo = 'entrada' THEN valor ELSE -valor END) as saldo_dia
+        FROM movimentacoes
+    `;
+    
+    let params = [];
+    
+    if (data_inicio && data_fim) {
+        query += ` WHERE DATE(data) BETWEEN ? AND ?`;
+        params = [data_inicio, data_fim];
+    }
+    
+    query += ` GROUP BY DATE(data) ORDER BY data DESC`;
+    
+    db.query(query, params, (err, results) => {
+        if (err) {
+            return res.status(500).json({ erro: 'Erro ao gerar relatório' });
+        }
+        res.json(results);
+    });
 });
