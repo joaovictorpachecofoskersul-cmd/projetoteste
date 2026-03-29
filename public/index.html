@@ -1,106 +1,9 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sistema de Fluxo de Caixa</title>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-<style>
-/* 🔥 SEU CSS ORIGINAL (NÃO ALTEREI) */
-* { margin: 0; padding: 0; box-sizing: border-box; }
-body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    min-height: 100vh;
-    padding: 20px;
-}
-.container { max-width: 1200px; margin: 0 auto; }
-.header {
-    background: white;
-    border-radius: 15px;
-    padding: 20px;
-    margin-bottom: 20px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-    text-align: center;
-}
-.header h1 { color: #667eea; }
-.card {
-    background: white;
-    border-radius: 15px;
-    padding: 25px;
-    margin-bottom: 20px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-}
-.login-container { max-width: 400px; margin: 100px auto; }
-.message { padding: 10px; border-radius: 8px; margin-top: 10px; }
-.success { background: #d4edda; color: #155724; }
-.error { background: #f8d7da; color: #721c24; }
-button {
-    background: #667eea;
-    color: white;
-    border: none;
-    padding: 12px;
-    border-radius: 8px;
-    cursor: pointer;
-}
-</style>
-</head>
-
-<body>
-
-<div class="container">
-
-<!-- LOGIN -->
-<div id="loginScreen" class="login-container">
-    <div class="card">
-        <h2>🔐 Login</h2>
-
-        <form id="loginForm">
-            <input type="text" id="username" value="admin" placeholder="Usuário"><br><br>
-            <input type="password" id="password" value="123" placeholder="Senha"><br><br>
-            <button type="submit">Entrar</button>
-        </form>
-
-        <div id="loginMessage"></div>
-    </div>
-</div>
-
-<!-- SISTEMA -->
-<div id="mainScreen" style="display:none;">
-    <div class="header">
-        <h1>💰 Sistema de Fluxo de Caixa</h1>
-        <button onclick="logout()">Sair</button>
-    </div>
-
-    <div class="card">
-        <h3>Nova Movimentação</h3>
-
-        <form id="movimentacaoForm">
-            <select id="tipo">
-                <option value="entrada">Entrada</option>
-                <option value="saida">Saída</option>
-            </select><br><br>
-
-            <input type="number" id="valor" placeholder="Valor"><br><br>
-            <input type="text" id="descricao" placeholder="Descrição"><br><br>
-
-            <button type="submit">Salvar</button>
-        </form>
-
-        <div id="movMessage"></div>
-    </div>
-</div>
-
-</div>
-
 <script>
-// LOGIN
 document.getElementById("loginForm").addEventListener("submit", async (e) => {
     e.preventDefault();
 
-    const username = document.getElementById("username").value;
-    const password = document.getElementById("password").value;
+    const username = document.getElementById("username").value.trim();
+    const password = document.getElementById("password").value.trim();
     const msg = document.getElementById("loginMessage");
 
     try {
@@ -116,49 +19,12 @@ document.getElementById("loginForm").addEventListener("submit", async (e) => {
             document.getElementById("loginScreen").style.display = "none";
             document.getElementById("mainScreen").style.display = "block";
         } else {
-            msg.innerHTML = `<div class="message error">Login inválido</div>`;
+            // 🔥 AGORA MOSTRA O ERRO REAL
+            msg.innerHTML = `<div class="message error">❌ ${data.error}</div>`;
         }
 
     } catch (err) {
-        msg.innerHTML = `<div class="message error">Erro no servidor</div>`;
+        msg.innerHTML = `<div class="message error">❌ erro no servidor</div>`;
     }
 });
-
-// MOVIMENTAÇÃO
-document.getElementById("movimentacaoForm").addEventListener("submit", async (e) => {
-    e.preventDefault();
-
-    const tipo = document.getElementById("tipo").value;
-    const valor = document.getElementById("valor").value;
-    const descricao = document.getElementById("descricao").value;
-
-    try {
-        const res = await fetch("/api/movimentacao", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ tipo, valor, descricao })
-        });
-
-        const data = await res.json();
-
-        const msg = document.getElementById("movMessage");
-
-        if (data.success) {
-            msg.innerHTML = `<div class="message success">Salvo com sucesso</div>`;
-        } else {
-            msg.innerHTML = `<div class="message error">Erro ao salvar</div>`;
-        }
-
-    } catch (err) {
-        document.getElementById("movMessage").innerHTML =
-            `<div class="message error">Erro no servidor</div>`;
-    }
-});
-
-function logout() {
-    location.reload();
-}
 </script>
-
-</body>
-</html>
