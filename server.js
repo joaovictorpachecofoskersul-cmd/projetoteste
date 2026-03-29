@@ -1,23 +1,116 @@
-app.post('/login', (req, res) => {
-  console.log("BODY RECEBIDO:", req.body);
+const express = require("express");
+const path = require("path");
+require("dotenv").config();
+const mysql = require("mysql2");
 
+const app = express();
+
+// ========================
+// CONEXÃO HOSTINGER
+// ========================
+const db = mysql.createConnection({
+  host: "auth-db1601.hstgr.io",
+  user: "u519611382_8uP59",
+  password: "21@Elesig",
+  database: "u519611382_T9bc4"
+});
+
+db.connect((err) => {
+  if (err) {
+    console.error("❌ Erro ao conectar no banco:", err);
+  } else {
+    console.log("✅ Conectado ao MySQL da Hostinger");
+  }
+});
+
+// ========================
+// MIDDLEWARE
+// ========================
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// ========================
+// FRONTEND
+// ========================
+app.use(express.static(path.join(__dirname, "public")));
+
+// ========================
+// TESTE API
+// ========================
+app.get("/api", (req, res) => {
+  res.json({ status: "ok" });
+});
+
+// ========================
+// TESTE BANCO (IMPORTANTE)
+// ========================
+app.get("/teste-db", (req, res) => {
+  db.query("SELECT * FROM users", (err, result) => {
+    if (err) {
+      console.log("Erro DB:", err);
+      return res.json({ erro: err.message });
+    }
+    res.json(result);
+  });
+});
+
+// ========================
+// LOGIN REAL (CORRETO)
+// ========================
+app.post("/api/login", (req, res) => {
   const { user, pass } = req.body;
 
-  db.query(
-    'SELECT * FROM users WHERE user = ? AND pass = ?',
-    [user, pass],
-    (err, result) => {
-      if (err) {
-        console.log("ERRO SQL:", err);
-        return res.json({ ok: false, error: err });
-      }
+  console.log("Login recebido:", req.body);
 
-      console.log("RESULTADO:", result);
+  if (!user || !pass) {
+    return res.json({ success: false, error: "dados vazios" });
+  }
 
-      res.json({
-        ok: result.length > 0,
-        data: result
-      });
+  const sql = "SELECT * FROM users WHERE user = ? AND pass = ?";
+
+  db.query(sql, [user, pass], (err, results) => {
+    if (err) {
+      console.log("Erro SQL:", err);
+      return res.status(500).json({ success: false, erro: err });
     }
-  );
+
+    console.log("Resultado:", results);
+
+    if (results.length > 0) {
+      return res.json({ success: true });
+    } else {
+      return res.json({ success: false });
+    }
+  });
+});
+
+// ========================
+// MOVIMENTAÇÃO
+// ========================
+app.post("/api/movimentacao", (req, res) => {
+  const { tipo, valor, descricao } = req.body;
+
+  if (!tipo || !valor) {
+    return res.json({ success: false, erro: "Dados inválidos" });
+  }
+
+  const sql = "INSERT INTO movimentacoes (tipo, valor, descricao) VALUES (?, ?, ?)";
+
+  db.query(sql, [tipo, valor, descricao], (err) => {
+    if (err) {
+      console.log("Erro SQL:", err);
+      return res.status(500).json({ success: false });
+    }
+
+    return res.json({ success: true });
+  });
+});
+
+// ========================
+// PORTA
+// ========================
+const PORT = process.env.PORT || 3000;
+
+app.listen(PORT, "0.0.0.0", () => {
+  console.log("🚀 Servidor rodando na porta " + PORT);
 });
