@@ -1,10 +1,27 @@
 const express = require("express");
 const path = require("path");
 require("dotenv").config();
-
-const db = require("./db");
+const mysql = require("mysql2");
 
 const app = express();
+
+// ========================
+// CONEXÃO HOSTINGER
+// ========================
+const db = mysql.createConnection({
+  host: "auth-db1601.hstgr.io",
+  user: "u519611382_8uP59",
+  password: "21@Elesig",
+  database: "u519611382_T9bc4"
+});
+
+db.connect((err) => {
+  if (err) {
+    console.error("❌ Erro ao conectar no banco:", err);
+  } else {
+    console.log("✅ Conectado ao MySQL da Hostinger");
+  }
+});
 
 // ========================
 // MIDDLEWARE
@@ -13,22 +30,24 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // ========================
-// FRONTEND (PASTA PUBLIC)
+// FRONTEND
 // ========================
 app.use(express.static(path.join(__dirname, "public")));
 
 // ========================
-// TESTE API
+// TESTE
 // ========================
 app.get("/api", (req, res) => {
   res.json({ status: "ok" });
 });
 
 // ========================
-// LOGIN (MYSQL REAL)
+// LOGIN REAL (CORRIGIDO)
 // ========================
 app.post("/api/login", (req, res) => {
   const { user, pass } = req.body;
+
+  console.log("Tentativa login:", user, pass);
 
   if (!user || !pass) {
     return res.json({ success: false, error: "dados vazios" });
@@ -38,18 +57,17 @@ app.post("/api/login", (req, res) => {
 
   db.query(sql, [user, pass], (err, results) => {
     if (err) {
-      console.error("❌ ERRO LOGIN:", err);
+      console.log("Erro SQL:", err);
       return res.status(500).json({ success: false });
     }
 
-    if (results.length > 0) {
-      return res.json({
-        success: true,
-        user: results[0]
-      });
-    }
+    console.log("Resultado:", results);
 
-    return res.json({ success: false });
+    if (results.length > 0) {
+      return res.json({ success: true, user: results[0] });
+    } else {
+      return res.json({ success: false });
+    }
   });
 });
 
@@ -59,87 +77,15 @@ app.post("/api/login", (req, res) => {
 app.post("/api/movimentacao", (req, res) => {
   const { tipo, valor, descricao } = req.body;
 
-  if (!tipo || valor === undefined) {
+  if (!tipo || !valor) {
     return res.json({ success: false, erro: "Dados inválidos" });
   }
 
-  const sql =
-    "INSERT INTO movimentacoes (tipo, valor, descricao) VALUES (?, ?, ?)";
+  const sql = "INSERT INTO movimentacoes (tipo, valor, descricao) VALUES (?, ?, ?)";
 
   db.query(sql, [tipo, valor, descricao], (err) => {
     if (err) {
-      console.error("❌ ERRO MOVIMENTAÇÃO:", err);
-      return res.status(500).json({ success: false });
-    }
-
-    return res.json({
-      success: true,
-      mensagem: "Movimentação salva com sucesso!"
-    });
-  });
-});
-
-// ========================
-// RELATÓRIO
-// ========================
-app.get("/api/relatorio", (req, res) => {
-  const { data_inicio, data_fim } = req.query;
-
-  let sql = `
-    SELECT 
-      DATE(data) as data,
-      SUM(CASE WHEN tipo = 'entrada' THEN valor ELSE 0 END) as entradas,
-      SUM(CASE WHEN tipo = 'saida' THEN valor ELSE 0 END) as saidas,
-      SUM(CASE WHEN tipo = 'entrada' THEN valor ELSE -valor END) as saldo
-    FROM movimentacoes
-  `;
-
-  const params = [];
-
-  if (data_inicio && data_fim) {
-    sql += " WHERE DATE(data) BETWEEN ? AND ?";
-    params.push(data_inicio, data_fim);
-  }
-
-  sql += " GROUP BY DATE(data) ORDER BY data DESC";
-
-  db.query(sql, params, (err, results) => {
-    if (err) {
-      console.error("❌ ERRO RELATÓRIO:", err);
-      return res.status(500).json({ erro: err.message });
-    }
-
-    return res.json(results);
-  });
-});
-
-// ========================
-// ROTA EXTRATO (LISTAR)
-// ========================
-app.get("/api/extrato", (req, res) => {
-  const sql = "SELECT * FROM movimentacoes ORDER BY data DESC";
-
-  db.query(sql, (err, results) => {
-    if (err) {
-      console.error("❌ ERRO EXTRATO:", err);
-      return res.status(500).json({ erro: err.message });
-    }
-
-    return res.json(results);
-  });
-});
-
-// ========================
-// DELETAR MOVIMENTAÇÃO
-// ========================
-app.delete("/api/movimentacao/:id", (req, res) => {
-  const { id } = req.params;
-
-  const sql = "DELETE FROM movimentacoes WHERE id = ?";
-
-  db.query(sql, [id], (err) => {
-    if (err) {
-      console.error("❌ ERRO DELETE:", err);
+      console.log("Erro SQL:", err);
       return res.status(500).json({ success: false });
     }
 
