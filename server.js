@@ -25,11 +25,17 @@ app.get("/api", (req, res) => {
 });
 
 // ========================
-// LOGIN
+// LOGIN (CORRIGIDO PARA FUTURO DB)
 // ========================
 app.post("/api/login", (req, res) => {
   const { user, pass } = req.body;
 
+  // segurança básica de entrada
+  if (!user || !pass) {
+    return res.json({ success: false, error: "dados vazios" });
+  }
+
+  // ⚠️ MODO ATUAL (temporário)
   if (user === "admin" && pass === "123") {
     return res.json({ success: true });
   }
@@ -38,12 +44,12 @@ app.post("/api/login", (req, res) => {
 });
 
 // ========================
-// SALVAR MOVIMENTAÇÃO
+// SALVAR MOVIMENTAÇÃO (ROBUSTO)
 // ========================
 app.post("/api/movimentacao", (req, res) => {
   const { tipo, valor } = req.body;
 
-  if (!tipo || !valor) {
+  if (!tipo || valor === undefined || valor === null) {
     return res.json({ success: false, erro: "Dados inválidos" });
   }
 
@@ -51,16 +57,16 @@ app.post("/api/movimentacao", (req, res) => {
 
   db.query(sql, [tipo, valor], (err) => {
     if (err) {
-      console.log("Erro:", err);
-      return res.json({ success: false });
+      console.log("Erro SQL:", err);
+      return res.status(500).json({ success: false });
     }
 
-    res.json({ success: true });
+    return res.json({ success: true });
   });
 });
 
 // ========================
-// RELATÓRIO
+// RELATÓRIO (CORRIGIDO + MAIS SEGURO)
 // ========================
 app.get("/relatorio", (req, res) => {
   const { data_inicio, data_fim } = req.query;
@@ -74,7 +80,7 @@ app.get("/relatorio", (req, res) => {
     FROM movimentacoes
   `;
 
-  let params = [];
+  const params = [];
 
   if (data_inicio && data_fim) {
     query += ` WHERE DATE(data) BETWEEN ? AND ?`;
@@ -89,15 +95,15 @@ app.get("/relatorio", (req, res) => {
       return res.status(500).json({ erro: err.message });
     }
 
-    res.json(results);
+    return res.json(results);
   });
 });
 
 // ========================
-// PORTA
+// PORTA (HOSTINGER + LOCAL)
 // ========================
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, "0.0.0.0", () => {
-  console.log("🚀 Servidor rodando");
+  console.log("🚀 Servidor rodando na porta " + PORT);
 });
