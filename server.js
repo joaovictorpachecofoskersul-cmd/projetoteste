@@ -17,9 +17,9 @@ const db = mysql.createConnection({
 
 db.connect((err) => {
   if (err) {
-    console.error("❌ Erro ao conectar no banco:", err);
+    console.error("❌ Erro ao conectar:", err);
   } else {
-    console.log("✅ Conectado ao MySQL da Hostinger");
+    console.log("✅ MySQL conectado");
   }
 });
 
@@ -35,48 +35,35 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "public")));
 
 // ========================
-// TESTE API
+// TESTE
 // ========================
 app.get("/api", (req, res) => {
   res.json({ status: "ok" });
 });
 
 // ========================
-// TESTE BANCO (IMPORTANTE)
-// ========================
-app.get("/teste-db", (req, res) => {
-  db.query("SELECT * FROM users", (err, result) => {
-    if (err) {
-      console.log("Erro DB:", err);
-      return res.json({ erro: err.message });
-    }
-    res.json(result);
-  });
-});
-
-// ========================
-// LOGIN REAL (CORRETO)
+// LOGIN
 // ========================
 app.post("/api/login", (req, res) => {
   const { user, pass } = req.body;
 
-  console.log("Login recebido:", req.body);
+  console.log("Login:", user, pass);
 
   if (!user || !pass) {
-    return res.json({ success: false, error: "dados vazios" });
+    return res.json({ success: false });
   }
 
   const sql = "SELECT * FROM users WHERE user = ? AND pass = ?";
 
-  db.query(sql, [user, pass], (err, results) => {
+  db.query(sql, [user, pass], (err, result) => {
     if (err) {
-      console.log("Erro SQL:", err);
-      return res.status(500).json({ success: false, erro: err });
+      console.log(err);
+      return res.status(500).json({ success: false });
     }
 
-    console.log("Resultado:", results);
+    console.log("Resultado:", result);
 
-    if (results.length > 0) {
+    if (result.length > 0) {
       return res.json({ success: true });
     } else {
       return res.json({ success: false });
@@ -90,19 +77,18 @@ app.post("/api/login", (req, res) => {
 app.post("/api/movimentacao", (req, res) => {
   const { tipo, valor, descricao } = req.body;
 
-  if (!tipo || !valor) {
-    return res.json({ success: false, erro: "Dados inválidos" });
-  }
-
-  const sql = "INSERT INTO movimentacoes (tipo, valor, descricao) VALUES (?, ?, ?)";
+  const sql = `
+    INSERT INTO movimentacoes (tipo, valor, descricao)
+    VALUES (?, ?, ?)
+  `;
 
   db.query(sql, [tipo, valor, descricao], (err) => {
     if (err) {
-      console.log("Erro SQL:", err);
+      console.log(err);
       return res.status(500).json({ success: false });
     }
 
-    return res.json({ success: true });
+    res.json({ success: true });
   });
 });
 
@@ -112,5 +98,5 @@ app.post("/api/movimentacao", (req, res) => {
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, "0.0.0.0", () => {
-  console.log("🚀 Servidor rodando na porta " + PORT);
+  console.log("🚀 Rodando na porta " + PORT);
 });
