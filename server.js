@@ -5,7 +5,7 @@ const mysql = require("mysql2");
 const app = express();
 
 // ========================
-// CONEXÃO MYSQL
+// CONEXÃO MYSQL HOSTINGER
 // ========================
 const db = mysql.createConnection({
   host: "auth-db1601.hstgr.io",
@@ -16,19 +16,25 @@ const db = mysql.createConnection({
 
 db.connect((err) => {
   if (err) {
-    console.log("ERRO BANCO:", err);
+    console.log("❌ Erro ao conectar no banco:", err);
   } else {
-    console.log("MYSQL CONECTADO");
+    console.log("✅ Conectado ao MySQL");
   }
 });
 
 // ========================
+// MIDDLEWARE
+// ========================
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// ========================
+// FRONTEND
+// ========================
 app.use(express.static(path.join(__dirname, "public")));
 
 // ========================
-// TESTE
+// TESTE API
 // ========================
 app.get("/api", (req, res) => {
   res.json({ status: "ok" });
@@ -45,26 +51,41 @@ app.get("/teste-db", (req, res) => {
 });
 
 // ========================
-// LOGIN
+// LOGIN (CORRIGIDO + DEBUG)
 // ========================
 app.post("/api/login", (req, res) => {
-  const { user, pass } = req.body;
+  let { user, pass } = req.body;
 
-  console.log("LOGIN:", user, pass);
+  user = user ? user.trim() : "";
+  pass = pass ? pass.trim() : "";
 
-  const sql = "SELECT * FROM users WHERE user = ? AND pass = ?";
+  console.log("📥 LOGIN RECEBIDO:", user, pass);
 
-  db.query(sql, [user, pass], (err, result) => {
+  if (!user || !pass) {
+    return res.json({ success: false, error: "dados vazios" });
+  }
+
+  const sql = "SELECT * FROM users WHERE user = ?";
+
+  db.query(sql, [user], (err, results) => {
     if (err) {
-      console.log(err);
-      return res.json({ success: false });
+      console.log("❌ Erro SQL:", err);
+      return res.status(500).json({ success: false });
     }
 
-    if (result.length > 0) {
-      return res.json({ success: true });
-    } else {
-      return res.json({ success: false });
+    console.log("📊 Resultado banco:", results);
+
+    if (results.length === 0) {
+      return res.json({ success: false, error: "usuario nao encontrado" });
     }
+
+    const usuario = results[0];
+
+    if (usuario.pass !== pass) {
+      return res.json({ success: false, error: "senha incorreta" });
+    }
+
+    return res.json({ success: true, user: usuario });
   });
 });
 
@@ -74,6 +95,10 @@ app.post("/api/login", (req, res) => {
 app.post("/api/movimentacao", (req, res) => {
   const { tipo, valor, descricao } = req.body;
 
+  if (!tipo || !valor) {
+    return res.json({ success: false });
+  }
+
   const sql = `
     INSERT INTO movimentacoes (tipo, valor, descricao)
     VALUES (?, ?, ?)
@@ -81,17 +106,19 @@ app.post("/api/movimentacao", (req, res) => {
 
   db.query(sql, [tipo, valor, descricao], (err) => {
     if (err) {
-      console.log(err);
+      console.log("❌ Erro SQL:", err);
       return res.json({ success: false });
     }
 
-    res.json({ success: true });
+    return res.json({ success: true });
   });
 });
 
 // ========================
+// PORTA
+// ========================
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, "0.0.0.0", () => {
-  console.log("SERVIDOR RODANDO");
+  console.log("🚀 Servidor rodando na porta " + PORT);
 });
