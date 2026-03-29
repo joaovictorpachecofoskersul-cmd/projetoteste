@@ -1,24 +1,23 @@
-async function login() {
-  const user = document.getElementById("user").value;
-  const password = document.getElementById("password").value;
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<title>Login</title>
+</head>
+<body>
 
-  const res = await fetch("/login", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({ user, password })
-  });
+<h2>Login Sistema Caixa</h2>
 
-  const data = await res.json();
+<input id="username" placeholder="Usuário">
+<br><br>
+<input id="password" type="password" placeholder="Senha">
+<br><br>
 
-  const msg = document.getElementById("msg");
+<button onclick="login()">Entrar</button>
 
-  if (data.success) {
-    msg.innerHTML = "Login aprovado ✅";
-    msg.style.color = "green";
-  } else {
-    msg.innerHTML = "Login inválido ❌";
-    msg.style.color = "red";
-  }
-}
+<p id="msg"></p>
+
+<script src="script.js"></script>
+
+</body>
+</html>
