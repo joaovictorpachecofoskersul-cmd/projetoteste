@@ -1,4 +1,67 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fluxo de Caixa</title>
+
+<style>
+body {
+    font-family: Arial;
+    background: #667eea;
+    color: white;
+    text-align: center;
+    padding-top: 100px;
+}
+.card {
+    background: white;
+    color: black;
+    padding: 30px;
+    border-radius: 10px;
+    width: 300px;
+    margin: auto;
+}
+input {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+}
+button {
+    width: 100%;
+    padding: 10px;
+    background: #667eea;
+    color: white;
+    border: none;
+}
+.message {
+    margin-top: 10px;
+}
+</style>
+</head>
+
+<body>
+
+<div id="loginScreen">
+    <div class="card">
+        <h2>🔐 Login</h2>
+
+        <form id="loginForm">
+            <input type="text" id="username" placeholder="Usuário" value="admin">
+            <input type="password" id="password" placeholder="Senha" value="123">
+            <button type="submit">Entrar</button>
+        </form>
+
+        <div id="loginMessage" class="message"></div>
+    </div>
+</div>
+
+<div id="mainScreen" style="display:none;">
+    <h1>💰 Bem-vinda ao sistema</h1>
+    <button onclick="logout()">Sair</button>
+</div>
+
 <script>
+// LOGIN
 document.getElementById("loginForm").addEventListener("submit", async (e) => {
     e.preventDefault();
 
@@ -9,22 +72,37 @@ document.getElementById("loginForm").addEventListener("submit", async (e) => {
     try {
         const res = await fetch("/api/login", {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ user: username, pass: password })
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                user: username,
+                pass: password
+            })
         });
 
         const data = await res.json();
+
+        console.log("RESPOSTA:", data);
 
         if (data.success) {
             document.getElementById("loginScreen").style.display = "none";
             document.getElementById("mainScreen").style.display = "block";
         } else {
-            // 🔥 AGORA MOSTRA O ERRO REAL
-            msg.innerHTML = `<div class="message error">❌ ${data.error}</div>`;
+            msg.innerHTML = "❌ " + (data.error || "Login inválido");
         }
 
     } catch (err) {
-        msg.innerHTML = `<div class="message error">❌ erro no servidor</div>`;
+        console.error(err);
+        msg.innerHTML = "❌ erro ao conectar";
     }
 });
+
+// LOGOUT
+function logout() {
+    location.reload();
+}
 </script>
+
+</body>
+</html>
