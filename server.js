@@ -1,15 +1,21 @@
 const express = require("express");
+const path = require("path");
+
 const app = express();
 
+// Middleware obrigatório
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// ROTA PRINCIPAL (evita "Cannot GET /")
+// SERVIR FRONTEND (PC + celular)
+app.use(express.static(path.join(__dirname, "public")));
+
+// ROTAS
 app.get("/", (req, res) => {
-  res.send("Sistema online 🚀");
+  res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
-// LOGIN SIMPLES
+// LOGIN (exemplo funcional)
 app.post("/login", (req, res) => {
   const { user, password } = req.body;
 
@@ -20,10 +26,9 @@ app.post("/login", (req, res) => {
   return res.json({ success: false });
 });
 
-// 🔥 HOSTINGER OBRIGATÓRIO
+// PORTA COMPATÍVEL COM HOSTINGER + LOCAL
 const PORT = process.env.PORT || 3000;
-const HOST = "0.0.0.0";
 
-app.listen(PORT, HOST, () => {
+app.listen(PORT, () => {
   console.log("Servidor rodando na porta " + PORT);
 });
