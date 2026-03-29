@@ -35,19 +35,32 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "public")));
 
 // ========================
-// TESTE
+// TESTE API
 // ========================
 app.get("/api", (req, res) => {
   res.json({ status: "ok" });
 });
 
 // ========================
-// LOGIN REAL (CORRIGIDO)
+// TESTE BANCO (IMPORTANTE)
+// ========================
+app.get("/teste-db", (req, res) => {
+  db.query("SELECT * FROM users", (err, result) => {
+    if (err) {
+      console.log("Erro DB:", err);
+      return res.json({ erro: err.message });
+    }
+    res.json(result);
+  });
+});
+
+// ========================
+// LOGIN REAL (CORRETO)
 // ========================
 app.post("/api/login", (req, res) => {
   const { user, pass } = req.body;
 
-  console.log("Tentativa login:", user, pass);
+  console.log("Login recebido:", req.body);
 
   if (!user || !pass) {
     return res.json({ success: false, error: "dados vazios" });
@@ -58,13 +71,13 @@ app.post("/api/login", (req, res) => {
   db.query(sql, [user, pass], (err, results) => {
     if (err) {
       console.log("Erro SQL:", err);
-      return res.status(500).json({ success: false });
+      return res.status(500).json({ success: false, erro: err });
     }
 
     console.log("Resultado:", results);
 
     if (results.length > 0) {
-      return res.json({ success: true, user: results[0] });
+      return res.json({ success: true });
     } else {
       return res.json({ success: false });
     }
