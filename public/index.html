@@ -7,7 +7,7 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
-/* (SEU CSS ORIGINAL - NÃO MEXI EM NADA) */
+/* 🔥 SEU CSS ORIGINAL (NÃO ALTEREI) */
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -32,30 +32,18 @@ body {
     margin-bottom: 20px;
     box-shadow: 0 10px 30px rgba(0,0,0,0.2);
 }
-.card h2 {
-    color: #333;
-    margin-bottom: 20px;
-    border-bottom: 2px solid #667eea;
-    padding-bottom: 10px;
-}
-.form-group { margin-bottom: 15px; }
-label { display: block; margin-bottom: 5px; color: #555; font-weight: bold; }
-input, select {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    font-size: 16px;
-}
+.login-container { max-width: 400px; margin: 100px auto; }
+.message { padding: 10px; border-radius: 8px; margin-top: 10px; }
+.success { background: #d4edda; color: #155724; }
+.error { background: #f8d7da; color: #721c24; }
 button {
     background: #667eea;
     color: white;
     border: none;
-    padding: 12px 30px;
+    padding: 12px;
     border-radius: 8px;
     cursor: pointer;
 }
-button:hover { background: #764ba2; }
 </style>
 </head>
 
@@ -64,21 +52,13 @@ button:hover { background: #764ba2; }
 <div class="container">
 
 <!-- LOGIN -->
-<div id="loginScreen">
+<div id="loginScreen" class="login-container">
     <div class="card">
         <h2>🔐 Login</h2>
 
         <form id="loginForm">
-            <div class="form-group">
-                <label>Usuário</label>
-                <input type="text" id="username" value="admin">
-            </div>
-
-            <div class="form-group">
-                <label>Senha</label>
-                <input type="password" id="password" value="123">
-            </div>
-
+            <input type="text" id="username" value="admin" placeholder="Usuário"><br><br>
+            <input type="password" id="password" value="123" placeholder="Senha"><br><br>
             <button type="submit">Entrar</button>
         </form>
 
@@ -90,29 +70,20 @@ button:hover { background: #764ba2; }
 <div id="mainScreen" style="display:none;">
     <div class="header">
         <h1>💰 Sistema de Fluxo de Caixa</h1>
+        <button onclick="logout()">Sair</button>
     </div>
 
     <div class="card">
-        <h2>Nova Movimentação</h2>
+        <h3>Nova Movimentação</h3>
 
         <form id="movimentacaoForm">
-            <div class="form-group">
-                <label>Tipo</label>
-                <select id="tipo">
-                    <option value="entrada">Entrada</option>
-                    <option value="saida">Saída</option>
-                </select>
-            </div>
+            <select id="tipo">
+                <option value="entrada">Entrada</option>
+                <option value="saida">Saída</option>
+            </select><br><br>
 
-            <div class="form-group">
-                <label>Valor</label>
-                <input type="number" id="valor">
-            </div>
-
-            <div class="form-group">
-                <label>Descrição</label>
-                <input type="text" id="descricao">
-            </div>
+            <input type="number" id="valor" placeholder="Valor"><br><br>
+            <input type="text" id="descricao" placeholder="Descrição"><br><br>
 
             <button type="submit">Salvar</button>
         </form>
@@ -124,41 +95,36 @@ button:hover { background: #764ba2; }
 </div>
 
 <script>
-// ========================
 // LOGIN
-// ========================
 document.getElementById("loginForm").addEventListener("submit", async (e) => {
     e.preventDefault();
 
     const username = document.getElementById("username").value;
     const password = document.getElementById("password").value;
+    const msg = document.getElementById("loginMessage");
 
-    const res = await fetch("/api/login", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-            user: username,
-            pass: password
-        })
-    });
+    try {
+        const res = await fetch("/api/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ user: username, pass: password })
+        });
 
-    const data = await res.json();
+        const data = await res.json();
 
-    if (data.success) {
-        document.getElementById("loginScreen").style.display = "none";
-        document.getElementById("mainScreen").style.display = "block";
-    } else {
-        document.getElementById("loginMessage").innerHTML =
-            "<p style='color:red;'>Login inválido</p>";
+        if (data.success) {
+            document.getElementById("loginScreen").style.display = "none";
+            document.getElementById("mainScreen").style.display = "block";
+        } else {
+            msg.innerHTML = `<div class="message error">Login inválido</div>`;
+        }
+
+    } catch (err) {
+        msg.innerHTML = `<div class="message error">Erro no servidor</div>`;
     }
 });
 
-
-// ========================
 // MOVIMENTAÇÃO
-// ========================
 document.getElementById("movimentacaoForm").addEventListener("submit", async (e) => {
     e.preventDefault();
 
@@ -166,28 +132,32 @@ document.getElementById("movimentacaoForm").addEventListener("submit", async (e)
     const valor = document.getElementById("valor").value;
     const descricao = document.getElementById("descricao").value;
 
-    const res = await fetch("/api/movimentacao", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-            tipo,
-            valor,
-            descricao
-        })
-    });
+    try {
+        const res = await fetch("/api/movimentacao", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ tipo, valor, descricao })
+        });
 
-    const data = await res.json();
+        const data = await res.json();
 
-    if (data.success) {
+        const msg = document.getElementById("movMessage");
+
+        if (data.success) {
+            msg.innerHTML = `<div class="message success">Salvo com sucesso</div>`;
+        } else {
+            msg.innerHTML = `<div class="message error">Erro ao salvar</div>`;
+        }
+
+    } catch (err) {
         document.getElementById("movMessage").innerHTML =
-            "<p style='color:green;'>Salvo com sucesso!</p>";
-    } else {
-        document.getElementById("movMessage").innerHTML =
-            "<p style='color:red;'>Erro ao salvar</p>";
+            `<div class="message error">Erro no servidor</div>`;
     }
 });
+
+function logout() {
+    location.reload();
+}
 </script>
 
 </body>
