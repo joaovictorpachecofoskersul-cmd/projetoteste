@@ -3,40 +3,33 @@ const path = require("path");
 
 const app = express();
 
-// JSON obrigatório
+// MIDDLEWARE
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // FRONTEND
 app.use(express.static(path.join(__dirname, "public")));
 
-// LOGIN SIMPLES (DB fake corrigido)
-const users = [
-  { user: "admin", password: "123" }
-];
+// ROTA TESTE
+app.get("/api", (req, res) => {
+  res.json({ status: "ok" });
+});
 
-app.post("/login", (req, res) => {
-  const { user, password } = req.body;
+// LOGIN
+app.post("/api/login", (req, res) => {
+  const { user, pass } = req.body;
 
-  const found = users.find(
-    u => u.user === user && u.password === password
-  );
-
-  if (found) {
+  // Login simples (depois você pode ligar no banco)
+  if (user === "admin" && pass === "123") {
     return res.json({ success: true });
   }
 
   return res.json({ success: false });
 });
 
-// ROTA PRINCIPAL
-app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "index.html"));
-});
-
-// PORTA COMPATÍVEL (PC + HOSTINGER + GIT)
+// PORTA HOSTINGER
 const PORT = process.env.PORT || 3000;
 
-app.listen(PORT, () => {
-  console.log("Servidor rodando na porta " + PORT);
+app.listen(PORT, "0.0.0.0", () => {
+  console.log("🚀 Servidor rodando");
 });
