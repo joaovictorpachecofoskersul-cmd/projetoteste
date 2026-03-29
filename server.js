@@ -7,32 +7,38 @@ const db = require("./db");
 const app = express();
 
 // ========================
+// MIDDLEWARE
+// ========================
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // ========================
+// SERVIR FRONTEND
+// ========================
 app.use(express.static(path.join(__dirname, "public")));
 
+// ========================
+// TESTE API
 // ========================
 app.get("/api", (req, res) => {
   res.json({ status: "ok" });
 });
 
 // ========================
-// LOGIN REAL
+// LOGIN (CORRIGIDO)
 // ========================
 app.post("/api/login", (req, res) => {
   const { user, pass } = req.body;
 
   if (!user || !pass) {
-    return res.json({ success: false });
+    return res.json({ success: false, message: "Dados vazios" });
   }
 
   const sql = "SELECT * FROM usuarios WHERE username = ? AND password = ?";
 
   db.query(sql, [user, pass], (err, results) => {
     if (err) {
-      console.log("Erro login:", err);
+      console.error("Erro login:", err);
       return res.status(500).json({ success: false });
     }
 
@@ -43,12 +49,12 @@ app.post("/api/login", (req, res) => {
       });
     }
 
-    return res.json({ success: false });
+    return res.json({ success: false, message: "Usuário inválido" });
   });
 });
 
 // ========================
-// MOVIMENTAÇÃO
+// MOVIMENTAÇÃO (CORRIGIDO)
 // ========================
 app.post("/api/movimentacao", (req, res) => {
   const { tipo, valor, descricao } = req.body;
@@ -57,12 +63,14 @@ app.post("/api/movimentacao", (req, res) => {
     return res.json({ success: false, erro: "Dados inválidos" });
   }
 
-  const sql =
-    "INSERT INTO movimentacoes (tipo, valor, descricao) VALUES (?, ?, ?)";
+  const sql = `
+    INSERT INTO movimentacoes (tipo, valor, descricao) 
+    VALUES (?, ?, ?)
+  `;
 
-  db.query(sql, [tipo, valor, descricao], (err) => {
+  db.query(sql, [tipo, valor, descricao || ""], (err) => {
     if (err) {
-      console.log("Erro movimentacao:", err);
+      console.error("Erro movimentacao:", err);
       return res.status(500).json({ success: false });
     }
 
@@ -78,8 +86,10 @@ app.get("/api/extrato", (req, res) => {
 
   db.query(sql, (err, results) => {
     if (err) {
+      console.error("Erro extrato:", err);
       return res.status(500).json([]);
     }
+
     res.json(results);
   });
 });
@@ -102,14 +112,15 @@ app.get("/api/relatorio", (req, res) => {
   const params = [];
 
   if (data_inicio && data_fim) {
-    query += ` WHERE DATE(data) BETWEEN ? AND ?`;
+    query += " WHERE DATE(data) BETWEEN ? AND ?";
     params.push(data_inicio, data_fim);
   }
 
-  query += ` GROUP BY DATE(data) ORDER BY data DESC`;
+  query += " GROUP BY DATE(data) ORDER BY data DESC";
 
   db.query(query, params, (err, results) => {
     if (err) {
+      console.error("Erro relatório:", err);
       return res.status(500).json([]);
     }
 
@@ -118,8 +129,17 @@ app.get("/api/relatorio", (req, res) => {
 });
 
 // ========================
+// ROTA PADRÃO (IMPORTANTE)
+// ========================
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "index.html"));
+});
+
+// ========================
+// PORTA
+// ========================
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, "0.0.0.0", () => {
-  console.log("🚀 Rodando na porta " + PORT);
+  console.log("🚀 Servidor rodando na porta " + PORT);
 });
