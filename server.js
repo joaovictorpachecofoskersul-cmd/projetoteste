@@ -1,12 +1,11 @@
 const express = require("express");
 const path = require("path");
-require("dotenv").config();
 const mysql = require("mysql2");
 
 const app = express();
 
 // ========================
-// CONEXÃO HOSTINGER
+// CONEXÃO MYSQL
 // ========================
 const db = mysql.createConnection({
   host: "auth-db1601.hstgr.io",
@@ -17,21 +16,15 @@ const db = mysql.createConnection({
 
 db.connect((err) => {
   if (err) {
-    console.error("❌ Erro ao conectar:", err);
+    console.log("ERRO BANCO:", err);
   } else {
-    console.log("✅ MySQL conectado");
+    console.log("MYSQL CONECTADO");
   }
 });
 
 // ========================
-// MIDDLEWARE
-// ========================
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
-// ========================
-// FRONTEND
-// ========================
 app.use(express.static(path.join(__dirname, "public")));
 
 // ========================
@@ -42,26 +35,30 @@ app.get("/api", (req, res) => {
 });
 
 // ========================
+// TESTE BANCO
+// ========================
+app.get("/teste-db", (req, res) => {
+  db.query("SELECT * FROM users", (err, result) => {
+    if (err) return res.json(err);
+    res.json(result);
+  });
+});
+
+// ========================
 // LOGIN
 // ========================
 app.post("/api/login", (req, res) => {
   const { user, pass } = req.body;
 
-  console.log("Login:", user, pass);
-
-  if (!user || !pass) {
-    return res.json({ success: false });
-  }
+  console.log("LOGIN:", user, pass);
 
   const sql = "SELECT * FROM users WHERE user = ? AND pass = ?";
 
   db.query(sql, [user, pass], (err, result) => {
     if (err) {
       console.log(err);
-      return res.status(500).json({ success: false });
+      return res.json({ success: false });
     }
-
-    console.log("Resultado:", result);
 
     if (result.length > 0) {
       return res.json({ success: true });
@@ -85,7 +82,7 @@ app.post("/api/movimentacao", (req, res) => {
   db.query(sql, [tipo, valor, descricao], (err) => {
     if (err) {
       console.log(err);
-      return res.status(500).json({ success: false });
+      return res.json({ success: false });
     }
 
     res.json({ success: true });
@@ -93,10 +90,8 @@ app.post("/api/movimentacao", (req, res) => {
 });
 
 // ========================
-// PORTA
-// ========================
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, "0.0.0.0", () => {
-  console.log("🚀 Rodando na porta " + PORT);
+  console.log("SERVIDOR RODANDO");
 });
