@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistema de Fluxo de Caixa</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -58,9 +57,8 @@
             border-radius: 8px;
             cursor: pointer;
             font-size: 16px;
-            transition: transform 0.3s;
         }
-        button:hover { background: #764ba2; transform: translateY(-2px); }
+        button:hover { background: #764ba2; }
         table {
             width: 100%;
             border-collapse: collapse;
@@ -108,40 +106,10 @@
             float: right;
             margin-top: -50px;
         }
-        .chart-container {
-            max-width: 100%;
-            margin: 20px 0;
-        }
-        canvas { max-height: 300px; }
-        .tab-buttons {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-        .tab-btn {
-            background: #e0e0e0;
-            color: #333;
-            flex: 1;
-        }
-        .tab-btn.active {
-            background: #667eea;
-            color: white;
-        }
-        .tab-content { display: none; }
-        .tab-content.active { display: block; }
-        .filter-group {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-            align-items: flex-end;
-        }
-        .filter-group .form-group { flex: 1; margin-bottom: 0; }
-        .filter-group button { width: auto; }
     </style>
 </head>
 <body>
     <div class="container" id="app">
-        <!-- Tela de Login -->
         <div id="loginScreen" class="login-container">
             <div class="card">
                 <h2 style="text-align: center;">🔐 Login</h2>
@@ -159,15 +127,11 @@
                 <div id="loginMessage"></div>
             </div>
         </div>
-
-        <!-- Tela Principal -->
         <div id="mainScreen" style="display: none;">
             <div class="header">
                 <h1>💰 Sistema de Fluxo de Caixa</h1>
                 <button onclick="logout()" class="logout-btn">Sair</button>
             </div>
-
-            <!-- Saldo -->
             <div class="saldo-card">
                 <h3>💰 SALDO ATUAL</h3>
                 <div class="saldo-valor" id="saldo">R$ 0,00</div>
@@ -175,17 +139,9 @@
                     <small>📈 Entradas: <span id="totalEntradas">R$ 0,00</span> | 📉 Saídas: <span id="totalSaidas">R$ 0,00</span></small>
                 </div>
             </div>
-
-            <!-- Abas -->
-            <div class="card">
-                <div class="tab-buttons">
-                    <button class="tab-btn active" onclick="mudarAba('movimentacao')">📝 Movimentações</button>
-                    <button class="tab-btn" onclick="mudarAba('relatorio')">📊 Relatórios</button>
-                    <button class="tab-btn" onclick="mudarAba('extrato')">📋 Extrato</button>
-                </div>
-
-                <!-- Aba Movimentação -->
-                <div id="tab-movimentacao" class="tab-content active">
+            <div class="grid-2">
+                <div class="card">
+                    <h2>📝 Registrar Movimentação</h2>
                     <form id="movimentacaoForm">
                         <div class="form-group">
                             <label>Tipo</label>
@@ -206,58 +162,30 @@
                     </form>
                     <div id="movMessage"></div>
                 </div>
-
-                <!-- Aba Relatório -->
-                <div id="tab-relatorio" class="tab-content">
-                    <div class="filter-group">
-                        <div class="form-group">
-                            <label>Data Início</label>
-                            <input type="date" id="data_inicio">
-                        </div>
-                        <div class="form-group">
-                            <label>Data Fim</label>
-                            <input type="date" id="data_fim">
-                        </div>
-                        <button onclick="carregarRelatorio()">Filtrar</button>
-                        <button onclick="limparFiltro()">Limpar</button>
-                    </div>
-                    <div class="chart-container">
-                        <canvas id="graficoMovimentacoes"></canvas>
-                    </div>
-                    <div style="overflow-x: auto;">
-                        <table id="relatorioTable">
-                            <thead>
-                                <tr><th>Data</th><th>Entradas</th><th>Saídas</th><th>Saldo do Dia</th></tr>
-                            </thead>
-                            <tbody id="relatorioBody">
-                                <tr><td colspan="4" style="text-align: center;">Selecione um período</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
+                <div class="card">
+                    <h2>📊 Resumo</h2>
+                    <p>✅ Sistema funcionando!</p>
+                    <p>📋 Registre suas movimentações</p>
                 </div>
-
-                <!-- Aba Extrato -->
-                <div id="tab-extrato" class="tab-content">
-                    <div style="overflow-x: auto;">
-                        <table id="extratoTable">
-                            <thead>
-                                <tr><th>ID</th><th>Tipo</th><th>Valor</th><th>Descrição</th><th>Data</th><th>Ação</th></tr>
-                            </thead>
-                            <tbody id="extratoBody">
-                                <tr><td colspan="6" style="text-align: center;">Carregando...</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
+            </div>
+            <div class="card">
+                <h2>📋 Extrato de Movimentações</h2>
+                <div style="overflow-x: auto;">
+                    <table id="extratoTable">
+                        <thead>
+                            <tr><th>ID</th><th>Tipo</th><th>Valor</th><th>Descrição</th><th>Data</th><th>Ação</th</tr>
+                        </thead>
+                        <tbody id="extratoBody">
+                            <tr><td colspan="6" style="text-align: center;">Carregando...</td></tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
     </div>
-
     <script>
         const API_URL = "http://localhost:3000";
-        let meuGrafico = null;
-
-        // Login
+        
         document.getElementById("loginForm").addEventListener("submit", async (e) => {
             e.preventDefault();
             const username = document.getElementById("username").value;
@@ -273,7 +201,6 @@
                     document.getElementById("loginScreen").style.display = "none";
                     document.getElementById("mainScreen").style.display = "block";
                     carregarDados();
-                    carregarRelatorio();
                 } else {
                     document.getElementById("loginMessage").innerHTML = `<div class="message error">❌ ${data.erro || "Erro no login"}</div>`;
                 }
@@ -281,8 +208,7 @@
                 document.getElementById("loginMessage").innerHTML = `<div class="message error">❌ Erro ao conectar ao servidor</div>`;
             }
         });
-
-        // Registrar movimentação
+        
         document.getElementById("movimentacaoForm").addEventListener("submit", async (e) => {
             e.preventDefault();
             const tipo = document.getElementById("tipo").value;
@@ -299,7 +225,6 @@
                     document.getElementById("movMessage").innerHTML = `<div class="message success">✅ ${data.mensagem}</div>`;
                     document.getElementById("movimentacaoForm").reset();
                     carregarDados();
-                    carregarRelatorio();
                     setTimeout(() => { document.getElementById("movMessage").innerHTML = ""; }, 3000);
                 } else {
                     document.getElementById("movMessage").innerHTML = `<div class="message error">❌ ${data.erro}</div>`;
@@ -308,11 +233,9 @@
                 document.getElementById("movMessage").innerHTML = `<div class="message error">❌ Erro ao registrar</div>`;
             }
         });
-
-        // Carregar dados
+        
         async function carregarDados() { await carregarExtrato(); await carregarSaldo(); }
-
-        // Carregar extrato
+        
         async function carregarExtrato() {
             try {
                 const response = await fetch(`${API_URL}/extrato`);
@@ -334,8 +257,7 @@
                 `).join("");
             } catch (error) { console.error(error); }
         }
-
-        // Carregar saldo
+        
         async function carregarSaldo() {
             try {
                 const response = await fetch(`${API_URL}/saldo`);
@@ -345,114 +267,18 @@
                 document.getElementById("totalSaidas").innerHTML = `R$ ${parseFloat(data.total_saidas).toFixed(2)}`;
             } catch (error) { console.error(error); }
         }
-
-        // Carregar relatório
-        async function carregarRelatorio() {
-            let url = `${API_URL}/relatorio`;
-            const data_inicio = document.getElementById("data_inicio").value;
-            const data_fim = document.getElementById("data_fim").value;
-            
-            if (data_inicio && data_fim) {
-                url += `?data_inicio=${data_inicio}&data_fim=${data_fim}`;
-            }
-            
-            try {
-                const response = await fetch(url);
-                const data = await response.json();
-                
-                // Atualizar tabela
-                const tbody = document.getElementById("relatorioBody");
-                if (data.length === 0) {
-                    tbody.innerHTML = "<tr><td colspan='4' style='text-align: center;'>Nenhum dado encontrado</td></tr>";
-                } else {
-                    tbody.innerHTML = data.map(item => `
-                        <tr>
-                            <td>${new Date(item.data).toLocaleDateString("pt-BR")}</td>
-                            <td class="entrada">R$ ${parseFloat(item.entradas).toFixed(2)}</td>
-                            <td class="saida">R$ ${parseFloat(item.saidas).toFixed(2)}</td>
-                            <td>R$ ${parseFloat(item.saldo_dia).toFixed(2)}</td>
-                        </tr>
-                    `).join("");
-                }
-                
-                // Atualizar gráfico
-                const datas = data.map(item => new Date(item.data).toLocaleDateString("pt-BR"));
-                const entradas = data.map(item => parseFloat(item.entradas));
-                const saidas = data.map(item => parseFloat(item.saidas));
-                
-                if (meuGrafico) { meuGrafico.destroy(); }
-                
-                const ctx = document.getElementById('graficoMovimentacoes').getContext('2d');
-                meuGrafico = new Chart(ctx, {
-                    type: 'bar',
-                    data: {
-                        labels: datas,
-                        datasets: [
-                            {
-                                label: 'Entradas',
-                                data: entradas,
-                                backgroundColor: 'rgba(40, 167, 69, 0.7)',
-                                borderColor: 'green',
-                                borderWidth: 1
-                            },
-                            {
-                                label: 'Saídas',
-                                data: saidas,
-                                backgroundColor: 'rgba(220, 53, 69, 0.7)',
-                                borderColor: 'red',
-                                borderWidth: 1
-                            }
-                        ]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: true,
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                                title: { display: true, text: 'Valor (R$)' }
-                            },
-                            x: {
-                                title: { display: true, text: 'Data' }
-                            }
-                        }
-                    }
-                });
-            } catch (error) { console.error(error); }
-        }
-
-        // Deletar movimentação
+        
         async function deletarMovimentacao(id) {
             if (confirm("Tem certeza que deseja deletar esta movimentação?")) {
                 try {
                     const response = await fetch(`${API_URL}/movimentacao/${id}`, { method: "DELETE" });
                     const data = await response.json();
-                    if (data.sucesso) { 
-                        carregarDados(); 
-                        carregarRelatorio();
-                        alert("✅ Movimentação deletada!"); 
-                    } else { 
-                        alert("❌ Erro ao deletar"); 
-                    }
+                    if (data.sucesso) { carregarDados(); alert("✅ Movimentação deletada!"); }
+                    else { alert("❌ Erro ao deletar"); }
                 } catch (error) { alert("❌ Erro ao conectar ao servidor"); }
             }
         }
-
-        // Funções de interface
-        function mudarAba(aba) {
-            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
-            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-            document.getElementById(`tab-${aba}`).classList.add('active');
-            event.target.classList.add('active');
-            if (aba === 'relatorio') { carregarRelatorio(); }
-        }
-
-        function limparFiltro() {
-            document.getElementById("data_inicio").value = "";
-            document.getElementById("data_fim").value = "";
-            carregarRelatorio();
-        }
-
+        
         function logout() {
             document.getElementById("loginScreen").style.display = "block";
             document.getElementById("mainScreen").style.display = "none";
