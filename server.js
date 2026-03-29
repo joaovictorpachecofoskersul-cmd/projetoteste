@@ -7,57 +7,62 @@ const db = require("./db");
 const app = express();
 
 // ========================
-// MIDDLEWARE
-// ========================
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // ========================
-// FRONTEND
-// ========================
 app.use(express.static(path.join(__dirname, "public")));
 
-// ========================
-// TESTE API
 // ========================
 app.get("/api", (req, res) => {
   res.json({ status: "ok" });
 });
 
 // ========================
-// LOGIN (CORRIGIDO PARA FUTURO DB)
+// LOGIN REAL
 // ========================
 app.post("/api/login", (req, res) => {
   const { user, pass } = req.body;
 
-  // segurança básica de entrada
   if (!user || !pass) {
-    return res.json({ success: false, error: "dados vazios" });
+    return res.json({ success: false });
   }
 
-  // ⚠️ MODO ATUAL (temporário)
-  if (user === "admin" && pass === "123") {
-    return res.json({ success: true });
-  }
+  const sql = "SELECT * FROM usuarios WHERE username = ? AND password = ?";
 
-  return res.json({ success: false });
+  db.query(sql, [user, pass], (err, results) => {
+    if (err) {
+      console.log("Erro login:", err);
+      return res.status(500).json({ success: false });
+    }
+
+    if (results.length > 0) {
+      return res.json({
+        success: true,
+        user: results[0]
+      });
+    }
+
+    return res.json({ success: false });
+  });
 });
 
 // ========================
-// SALVAR MOVIMENTAÇÃO (ROBUSTO)
+// MOVIMENTAÇÃO
 // ========================
 app.post("/api/movimentacao", (req, res) => {
-  const { tipo, valor } = req.body;
+  const { tipo, valor, descricao } = req.body;
 
-  if (!tipo || valor === undefined || valor === null) {
+  if (!tipo || !valor) {
     return res.json({ success: false, erro: "Dados inválidos" });
   }
 
-  const sql = "INSERT INTO movimentacoes (tipo, valor) VALUES (?, ?)";
+  const sql =
+    "INSERT INTO movimentacoes (tipo, valor, descricao) VALUES (?, ?, ?)";
 
-  db.query(sql, [tipo, valor], (err) => {
+  db.query(sql, [tipo, valor, descricao], (err) => {
     if (err) {
-      console.log("Erro SQL:", err);
+      console.log("Erro movimentacao:", err);
       return res.status(500).json({ success: false });
     }
 
@@ -66,9 +71,23 @@ app.post("/api/movimentacao", (req, res) => {
 });
 
 // ========================
-// RELATÓRIO (CORRIGIDO + MAIS SEGURO)
+// EXTRATO
 // ========================
-app.get("/relatorio", (req, res) => {
+app.get("/api/extrato", (req, res) => {
+  const sql = "SELECT * FROM movimentacoes ORDER BY data DESC";
+
+  db.query(sql, (err, results) => {
+    if (err) {
+      return res.status(500).json([]);
+    }
+    res.json(results);
+  });
+});
+
+// ========================
+// RELATÓRIO
+// ========================
+app.get("/api/relatorio", (req, res) => {
   const { data_inicio, data_fim } = req.query;
 
   let query = `
@@ -91,19 +110,16 @@ app.get("/relatorio", (req, res) => {
 
   db.query(query, params, (err, results) => {
     if (err) {
-      console.error("Erro relatório:", err);
-      return res.status(500).json({ erro: err.message });
+      return res.status(500).json([]);
     }
 
-    return res.json(results);
+    res.json(results);
   });
 });
 
 // ========================
-// PORTA (HOSTINGER + LOCAL)
-// ========================
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, "0.0.0.0", () => {
-  console.log("🚀 Servidor rodando na porta " + PORT);
+  console.log("🚀 Rodando na porta " + PORT);
 });
