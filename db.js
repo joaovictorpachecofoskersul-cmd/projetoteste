@@ -1,17 +1,19 @@
 const mysql = require("mysql2");
+require("dotenv").config();
 
 const db = mysql.createConnection({
-  host: "localhost",
-  user: "root",
-  password: "",
-  database: "caixa_system"
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASS,
+  database: process.env.DB_NAME,
+  port: process.env.DB_PORT || 3306
 });
 
 db.connect((err) => {
   if (err) {
-    console.log("❌ Erro no MySQL:", err);
+    console.error("❌ Erro no MySQL:", err.message);
   } else {
-    console.log("✅ MySQL conectado!");
+    console.log("✅ Banco conectado!");
   }
 });
 
