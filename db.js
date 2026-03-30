@@ -14,7 +14,7 @@ db.getConnection((err, connection) => {
   if (err) {
     console.error("❌ ERRO:", err.message);
   } else {
-    console.log("✅ CONECTADO COM SUCESSO!");
+    console.log("✅ CONECTADO!");
     console.log("📊 Banco: u519611382_fluxo_caixa_si");
     connection.release();
   }
