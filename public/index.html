@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Fluxo de Caixa</title>
-
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
 * {
     margin: 0;
@@ -16,140 +16,82 @@ body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     min-height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.card {
-    background: white;
-    border-radius: 10px;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.1);
-    width: 350px;
-    padding: 40px;
-}
-
-.card h2 {
-    text-align: center;
-    color: #333;
-    margin-bottom: 30px;
-}
-
-.form-group {
-    margin-bottom: 20px;
-}
-
-.form-group label {
-    display: block;
-    margin-bottom: 8px;
-    color: #555;
-    font-size: 14px;
-}
-
-.form-group input {
-    width: 100%;
-    padding: 12px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    font-size: 14px;
-    transition: border-color 0.3s;
-}
-
-.form-group input:focus {
-    outline: none;
-    border-color: #667eea;
-}
-
-button {
-    width: 100%;
-    padding: 12px;
-    background: #667eea;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    font-size: 16px;
-    cursor: pointer;
-    transition: background 0.3s;
-}
-
-button:hover {
-    background: #5a67d8;
-}
-
-.message {
-    margin-top: 20px;
-    padding: 10px;
-    border-radius: 5px;
-    text-align: center;
-    font-size: 14px;
-}
-
-.message.error {
-    background: #fee;
-    color: #c33;
-}
-
-.message.success {
-    background: #efe;
-    color: #3c3;
-}
-
-#mainScreen {
-    width: 100%;
-    max-width: 1200px;
     padding: 20px;
 }
 
+.container {
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+/* Header */
 .header {
     background: white;
-    border-radius: 10px;
-    padding: 20px;
-    margin-bottom: 20px;
+    border-radius: 15px;
+    padding: 20px 30px;
+    margin-bottom: 30px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    box-shadow: 0 5px 20px rgba(0,0,0,0.1);
 }
 
 .header h1 {
     color: #333;
-    font-size: 24px;
+    font-size: 28px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
 
 .logout-btn {
-    width: auto;
-    padding: 10px 20px;
     background: #dc3545;
+    color: white;
+    border: none;
+    padding: 10px 25px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.3s;
 }
 
 .logout-btn:hover {
     background: #c82333;
+    transform: scale(1.02);
 }
 
-.dashboard {
+/* Cards lado a lado */
+.dashboard-cards {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 20px;
-    margin-bottom: 20px;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 25px;
+    margin-bottom: 30px;
 }
 
-.card-dashboard {
+.card {
     background: white;
-    border-radius: 10px;
-    padding: 20px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    border-radius: 15px;
+    padding: 25px;
+    text-align: center;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+    transition: transform 0.3s;
 }
 
-.card-dashboard h3 {
-    color: #555;
+.card:hover {
+    transform: translateY(-5px);
+}
+
+.card h3 {
+    color: #666;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
     margin-bottom: 15px;
-    font-size: 18px;
 }
 
 .valor {
     font-size: 32px;
     font-weight: bold;
-    color: #333;
 }
 
 .valor.positivo {
@@ -160,12 +102,78 @@ button:hover {
     color: #dc3545;
 }
 
+/* Gráfico e Relatório lado a lado */
+.row-duas-colunas {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 25px;
+    margin-bottom: 30px;
+}
+
+.card-grafico, .card-relatorio {
+    background: white;
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+}
+
+.card-grafico h3, .card-relatorio h3 {
+    color: #333;
+    margin-bottom: 20px;
+    font-size: 18px;
+    border-left: 4px solid #667eea;
+    padding-left: 15px;
+}
+
+canvas {
+    max-height: 300px;
+}
+
+.relatorio-lista {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.relatorio-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 12px;
+    border-bottom: 1px solid #eee;
+}
+
+.relatorio-item:hover {
+    background: #f8f9fa;
+}
+
+.relatorio-data {
+    font-size: 12px;
+    color: #888;
+}
+
+.relatorio-descricao {
+    flex: 1;
+    margin-left: 15px;
+}
+
+.relatorio-valor {
+    font-weight: bold;
+}
+
+.relatorio-valor.entrada {
+    color: #28a745;
+}
+
+.relatorio-valor.saida {
+    color: #dc3545;
+}
+
+/* Formulário */
 .form-movimentacao {
     background: white;
-    border-radius: 10px;
-    padding: 20px;
-    margin-bottom: 20px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    border-radius: 15px;
+    padding: 25px;
+    margin-bottom: 30px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.1);
 }
 
 .form-movimentacao h3 {
@@ -176,72 +184,104 @@ button:hover {
 .form-row {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 15px;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.form-group {
     margin-bottom: 15px;
 }
 
-.select-group select {
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: #555;
+    font-weight: 500;
+}
+
+.form-group input, .form-group select {
     width: 100%;
     padding: 12px;
     border: 1px solid #ddd;
-    border-radius: 5px;
+    border-radius: 8px;
     font-size: 14px;
+    transition: all 0.3s;
 }
 
-.lista-movimentacoes {
+.form-group input:focus, .form-group select:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102,126,234,0.1);
+}
+
+button[type="submit"] {
+    background: #667eea;
+    color: white;
+    border: none;
+    padding: 12px 30px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    transition: all 0.3s;
+}
+
+button[type="submit"]:hover {
+    background: #5a67d8;
+    transform: scale(1.02);
+}
+
+.message {
+    margin-top: 15px;
+    padding: 10px;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.message.success {
+    background: #d4edda;
+    color: #155724;
+}
+
+.message.error {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+/* Login */
+.login-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+.login-card {
     background: white;
-    border-radius: 10px;
-    padding: 20px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    border-radius: 20px;
+    padding: 40px;
+    width: 400px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
 }
 
-.lista-movimentacoes h3 {
-    margin-bottom: 20px;
+.login-card h2 {
+    text-align: center;
     color: #333;
+    margin-bottom: 30px;
 }
 
-table {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-th, td {
-    padding: 12px;
-    text-align: left;
-    border-bottom: 1px solid #ddd;
-}
-
-th {
-    background: #f8f9fa;
-    font-weight: bold;
-    color: #555;
-}
-
-tr:hover {
-    background: #f8f9fa;
-}
-
-.tipo-entrada {
-    color: #28a745;
-    font-weight: bold;
-}
-
-.tipo-saida {
-    color: #dc3545;
-    font-weight: bold;
-}
-
+/* Responsivo */
 @media (max-width: 768px) {
-    .form-row {
+    .dashboard-cards {
         grid-template-columns: 1fr;
     }
     
-    table {
-        font-size: 12px;
+    .row-duas-colunas {
+        grid-template-columns: 1fr;
     }
     
-    th, td {
-        padding: 8px;
+    .form-row {
+        grid-template-columns: 1fr;
     }
 }
 </style>
@@ -249,11 +289,9 @@ tr:hover {
 
 <body>
 
-<div id="loginScreen">
-    <div class="card">
-        <h2>🔐 Fluxo de Caixa</h2>
-        <h2 style="font-size: 18px; margin-bottom: 20px;">Login</h2>
-
+<div id="loginScreen" class="login-container">
+    <div class="login-card">
+        <h2>💰 Fluxo de Caixa</h2>
         <form id="loginForm">
             <div class="form-group">
                 <label>Usuário</label>
@@ -265,85 +303,80 @@ tr:hover {
             </div>
             <button type="submit">Entrar</button>
         </form>
-
         <div id="loginMessage" class="message"></div>
     </div>
 </div>
 
 <div id="mainScreen" style="display:none;">
-    <div class="header">
-        <h1>💰 Fluxo de Caixa</h1>
-        <button class="logout-btn" onclick="logout()">Sair</button>
-    </div>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>💰 Fluxo de Caixa</h1>
+            <button class="logout-btn" onclick="logout()">Sair</button>
+        </div>
 
-    <div class="dashboard">
-        <div class="card-dashboard">
-            <h3>Saldo Atual</h3>
-            <div class="valor" id="saldo">R$ 0,00</div>
+        <!-- Cards lado a lado -->
+        <div class="dashboard-cards">
+            <div class="card">
+                <h3>Saldo Atual</h3>
+                <div class="valor" id="saldo">R$ 0,00</div>
+            </div>
+            <div class="card">
+                <h3>Total Entradas</h3>
+                <div class="valor positivo" id="totalEntradas">R$ 0,00</div>
+            </div>
+            <div class="card">
+                <h3>Total Saídas</h3>
+                <div class="valor negativo" id="totalSaidas">R$ 0,00</div>
+            </div>
         </div>
-        <div class="card-dashboard">
-            <h3>Total Entradas</h3>
-            <div class="valor positivo" id="totalEntradas">R$ 0,00</div>
-        </div>
-        <div class="card-dashboard">
-            <h3>Total Saídas</h3>
-            <div class="valor negativo" id="totalSaidas">R$ 0,00</div>
-        </div>
-    </div>
 
-    <div class="form-movimentacao">
-        <h3>📝 Nova Movimentação</h3>
-        <form id="movimentacaoForm">
-            <div class="form-row">
-                <div class="select-group">
-                    <label>Tipo</label>
-                    <select id="tipo" required>
-                        <option value="">Selecione...</option>
-                        <option value="entrada">💰 Entrada</option>
-                        <option value="saida">💸 Saída</option>
-                    </select>
+        <!-- Gráfico e Relatório lado a lado -->
+        <div class="row-duas-colunas">
+            <div class="card-grafico">
+                <h3>📊 Gráfico de Movimentações</h3>
+                <canvas id="graficoMovimentacoes"></canvas>
+            </div>
+            <div class="card-relatorio">
+                <h3>📋 Últimas Movimentações</h3>
+                <div id="listaMovimentacoes" class="relatorio-lista">
+                    <div style="text-align: center; color: #888;">Carregando...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Formulário -->
+        <div class="form-movimentacao">
+            <h3>📝 Nova Movimentação</h3>
+            <form id="movimentacaoForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Tipo</label>
+                        <select id="tipo" required>
+                            <option value="">Selecione...</option>
+                            <option value="entrada">💰 Entrada</option>
+                            <option value="saida">💸 Saída</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Valor (R$)</label>
+                        <input type="number" id="valor" step="0.01" placeholder="0,00" required>
+                    </div>
                 </div>
                 <div class="form-group">
-                    <label>Valor (R$)</label>
-                    <input type="number" id="valor" step="0.01" placeholder="0,00" required>
+                    <label>Descrição</label>
+                    <input type="text" id="descricao" placeholder="Ex: Salário, Conta de luz...">
                 </div>
-            </div>
-            <div class="form-group">
-                <label>Descrição</label>
-                <input type="text" id="descricao" placeholder="Ex: Salário, Conta de luz...">
-            </div>
-            <button type="submit">Registrar Movimentação</button>
-        </form>
-        <div id="movimentacaoMessage" class="message"></div>
-    </div>
-
-    <div class="lista-movimentacoes">
-        <h3>📋 Últimas Movimentações</h3>
-        <div style="overflow-x: auto;">
-            <table id="tabelaMovimentacoes">
-                <thead>
-                    <tr>
-                        <th>Data</th>
-                        <th>Tipo</th>
-                        <th>Valor</th>
-                        <th>Descrição</th>
-                    </tr>
-                </thead>
-                <tbody id="movimentacoesBody">
-                    <tr>
-                        <td colspan="4" style="text-align: center;">Carregando...</td>
-                    </tr>
-                </tbody>
-            </table>
+                <button type="submit">Registrar Movimentação</button>
+            </form>
+            <div id="movimentacaoMessage" class="message"></div>
         </div>
     </div>
 </div>
 
 <script>
-// Variável para armazenar o usuário logado
-let usuarioLogado = null;
+let grafico;
 
-// Função para formatar moeda
 function formatarMoeda(valor) {
     return new Intl.NumberFormat('pt-BR', {
         style: 'currency',
@@ -351,7 +384,6 @@ function formatarMoeda(valor) {
     }).format(valor);
 }
 
-// Função para carregar saldo
 async function carregarSaldo() {
     try {
         const res = await fetch("/api/saldo");
@@ -359,158 +391,150 @@ async function carregarSaldo() {
         
         if (data.success) {
             document.getElementById("saldo").innerHTML = formatarMoeda(data.saldo);
-            document.getElementById("totalEntradas").innerHTML = formatarMoeda(data.total_entradas);
-            document.getElementById("totalSaidas").innerHTML = formatarMoeda(data.total_saidas);
+            document.getElementById("totalEntradas").innerHTML = formatarMoeda(data.entradas);
+            document.getElementById("totalSaidas").innerHTML = formatarMoeda(data.saidas);
         }
     } catch (err) {
-        console.error("Erro ao carregar saldo:", err);
+        console.error("Erro:", err);
     }
 }
 
-// Função para carregar movimentações
 async function carregarMovimentacoes() {
     try {
         const res = await fetch("/api/movimentacoes");
         const data = await res.json();
         
         if (data.success && data.movimentacoes) {
-            const tbody = document.getElementById("movimentacoesBody");
+            const lista = document.getElementById("listaMovimentacoes");
             
             if (data.movimentacoes.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="4" style="text-align: center;">Nenhuma movimentação encontrada</td></tr>';
+                lista.innerHTML = '<div style="text-align: center; color: #888;">Nenhuma movimentação</div>';
                 return;
             }
             
-            tbody.innerHTML = data.movimentacoes.map(mov => `
-                <tr>
-                    <td>${new Date(mov.data).toLocaleString('pt-BR')}</td>
-                    <td class="${mov.tipo === 'entrada' ? 'tipo-entrada' : 'tipo-saida'}">
-                        ${mov.tipo === 'entrada' ? '💰 Entrada' : '💸 Saída'}
-                    </td>
-                    <td class="${mov.tipo === 'entrada' ? 'tipo-entrada' : 'tipo-saida'}">
-                        ${formatarMoeda(mov.valor)}
-                    </td>
-                    <td>${mov.descricao || '-'}</td>
-                </tr>
+            lista.innerHTML = data.movimentacoes.map(mov => `
+                <div class="relatorio-item">
+                    <div class="relatorio-data">${new Date(mov.data).toLocaleDateString('pt-BR')}</div>
+                    <div class="relatorio-descricao">${mov.descricao || '-'}</div>
+                    <div class="relatorio-valor ${mov.tipo}">
+                        ${mov.tipo === 'entrada' ? '+' : '-'} ${formatarMoeda(mov.valor)}
+                    </div>
+                </div>
             `).join('');
+            
+            atualizarGrafico(data.movimentacoes);
         }
     } catch (err) {
-        console.error("Erro ao carregar movimentações:", err);
+        console.error("Erro:", err);
     }
 }
 
-// LOGIN
+function atualizarGrafico(movimentacoes) {
+    const entradas = movimentacoes.filter(m => m.tipo === 'entrada').reduce((s, m) => s + parseFloat(m.valor), 0);
+    const saidas = movimentacoes.filter(m => m.tipo === 'saida').reduce((s, m) => s + parseFloat(m.valor), 0);
+    
+    if (grafico) {
+        grafico.destroy();
+    }
+    
+    const ctx = document.getElementById('graficoMovimentacoes').getContext('2d');
+    grafico = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Entradas', 'Saídas'],
+            datasets: [{
+                data: [entradas, saidas],
+                backgroundColor: ['#28a745', '#dc3545'],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        }
+    });
+}
+
+// Login
 document.getElementById("loginForm").addEventListener("submit", async (e) => {
     e.preventDefault();
-
+    
     const username = document.getElementById("username").value.trim();
     const password = document.getElementById("password").value.trim();
     const msg = document.getElementById("loginMessage");
-
-    msg.innerHTML = "🔄 Verificando...";
-    msg.className = "message";
-
+    
     try {
         const res = await fetch("/api/login", {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                user: username,
-                pass: password
-            })
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ user: username, pass: password })
         });
-
+        
         const data = await res.json();
-
+        
         if (data.success) {
-            usuarioLogado = data.user;
             document.getElementById("loginScreen").style.display = "none";
             document.getElementById("mainScreen").style.display = "block";
-            
-            // Carregar dados iniciais
             await carregarSaldo();
             await carregarMovimentacoes();
         } else {
             msg.innerHTML = "❌ " + (data.error || "Login inválido");
             msg.className = "message error";
         }
-
     } catch (err) {
-        console.error(err);
-        msg.innerHTML = "❌ Erro ao conectar com o servidor";
+        msg.innerHTML = "❌ Erro ao conectar";
         msg.className = "message error";
     }
 });
 
-// REGISTRAR MOVIMENTAÇÃO
-document.getElementById("movimentacaoForm")?.addEventListener("submit", async (e) => {
+// Registrar movimentação
+document.getElementById("movimentacaoForm").addEventListener("submit", async (e) => {
     e.preventDefault();
-
+    
     const tipo = document.getElementById("tipo").value;
     const valor = parseFloat(document.getElementById("valor").value);
     const descricao = document.getElementById("descricao").value;
     const msg = document.getElementById("movimentacaoMessage");
-
+    
     if (!tipo || !valor || valor <= 0) {
-        msg.innerHTML = "❌ Preencha todos os campos corretamente";
+        msg.innerHTML = "❌ Preencha todos os campos";
         msg.className = "message error";
-        setTimeout(() => {
-            msg.innerHTML = "";
-            msg.className = "message";
-        }, 3000);
+        setTimeout(() => { msg.innerHTML = ""; }, 3000);
         return;
     }
-
-    msg.innerHTML = "🔄 Registrando...";
-    msg.className = "message";
-
+    
     try {
         const res = await fetch("/api/movimentacao", {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                tipo: tipo,
-                valor: valor,
-                descricao: descricao
-            })
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ tipo, valor, descricao })
         });
-
+        
         const data = await res.json();
-
+        
         if (data.success) {
-            msg.innerHTML = "✅ Movimentação registrada com sucesso!";
+            msg.innerHTML = "✅ Movimentação registrada!";
             msg.className = "message success";
-            
-            // Limpar formulário
             document.getElementById("tipo").value = "";
             document.getElementById("valor").value = "";
             document.getElementById("descricao").value = "";
-            
-            // Recarregar dados
             await carregarSaldo();
             await carregarMovimentacoes();
-            
-            setTimeout(() => {
-                msg.innerHTML = "";
-                msg.className = "message";
-            }, 3000);
+            setTimeout(() => { msg.innerHTML = ""; }, 3000);
         } else {
-            msg.innerHTML = "❌ " + (data.error || "Erro ao registrar");
+            msg.innerHTML = "❌ " + (data.error || "Erro");
             msg.className = "message error";
         }
-
     } catch (err) {
-        console.error(err);
-        msg.innerHTML = "❌ Erro ao conectar com o servidor";
+        msg.innerHTML = "❌ Erro ao conectar";
         msg.className = "message error";
     }
 });
 
-// LOGOUT
 function logout() {
     location.reload();
 }
