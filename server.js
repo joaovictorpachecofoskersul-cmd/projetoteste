@@ -1,40 +1,13 @@
 const express = require("express");
 const path = require("path");
-const mysql = require("mysql2");
-require("dotenv").config();
+const db = require("./db");
 
 const app = express();
 
-// ========================
-// CONEXÃO MYSQL
-// ========================
-const db = mysql.createConnection({
-  host: process.env.DB_HOST,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASS,
-  database: process.env.DB_NAME
-});
-
-// Conectar
-db.connect((err) => {
-  if (err) {
-    console.log("❌ Erro:", err.message);
-  } else {
-    console.log("✅ Conectado ao MySQL!");
-    console.log("📊 Banco:", process.env.DB_NAME);
-  }
-});
-
-// ========================
-// MIDDLEWARE
-// ========================
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "public")));
 
-// ========================
-// ROTAS
-// ========================
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));
 });
@@ -97,18 +70,14 @@ app.get("/api/saldo", (req, res) => {
   });
 });
 
-// ========================
-// INICIAR SERVIDOR
-// ========================
-const PORT = process.env.PORT || 3000;
+const PORT = 3000;
 
 app.listen(PORT, () => {
   console.log("=".repeat(50));
-  console.log("🚀 FLUXO DE CAIXA - RODANDO");
+  console.log("🚀 FLUXO DE CAIXA - SERVIDOR RODANDO");
   console.log("=".repeat(50));
   console.log(`📡 Porta: ${PORT}`);
   console.log(`🌐 http://localhost:${PORT}`);
-  console.log(`📊 Banco: ${process.env.DB_NAME}`);
   console.log(`👤 Login: admin / 123`);
   console.log("=".repeat(50));
 });
