@@ -1,17 +1,18 @@
 const express = require("express");
 const path = require("path");
 const mysql = require("mysql2");
+require("dotenv").config();  // ← Carrega as variáveis do .env
 
 const app = express();
 
 // ========================
-// CONEXÃO MYSQL - CREDENCIAIS CORRETAS
+// CONEXÃO MYSQL - USANDO .ENV
 // ========================
 const db = mysql.createPool({
-  host: "auth-db1601.hstgr.io",
-  user: "u519611382_fluxo",        // ← SEU USUÁRIO
-  password: "Fluxo2026@", // ← A SENHA QUE VOCÊ USOU
-  database: "u519611382_1T9bc4",   // ← SEU BANCO
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASS,
+  database: process.env.DB_NAME,
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0
@@ -21,9 +22,13 @@ const db = mysql.createPool({
 db.getConnection((err, connection) => {
   if (err) {
     console.log("❌ Erro ao conectar:", err.message);
+    console.log("📋 Configurações do .env:");
+    console.log("   Host:", process.env.DB_HOST);
+    console.log("   User:", process.env.DB_USER);
+    console.log("   Database:", process.env.DB_NAME);
   } else {
     console.log("✅ Conectado ao MySQL com sucesso!");
-    console.log("📊 Banco:", "u519611382_1T9bc4");
+    console.log("📊 Banco:", process.env.DB_NAME);
     connection.release();
   }
 });
@@ -176,7 +181,7 @@ app.listen(PORT, "0.0.0.0", () => {
   console.log("=".repeat(50));
   console.log(`📡 Porta: ${PORT}`);
   console.log(`🌐 Acesse: http://localhost:${PORT}`);
-  console.log(`📊 Banco: u519611382_1T9bc4`);
+  console.log(`📊 Banco: ${process.env.DB_NAME}`);
   console.log(`👤 Usuário sistema: admin`);
   console.log(`🔑 Senha sistema: 123`);
   console.log("=".repeat(50));
