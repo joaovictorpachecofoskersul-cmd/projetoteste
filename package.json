@@ -1,7 +1,6 @@
 {
   "name": "fluxo-caixa",
   "version": "1.0.0",
-  "description": "Sistema de Fluxo de Caixa",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
