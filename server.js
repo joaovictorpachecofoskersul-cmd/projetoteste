@@ -5,13 +5,13 @@ const mysql = require("mysql2");
 const app = express();
 
 // ========================
-// CONEXÃO MYSQL - CREDENCIAIS CORRETAS
+// CONEXÃO MYSQL - NOVO USUÁRIO FLUXO
 // ========================
 const db = mysql.createPool({
   host: "auth-db1601.hstgr.io",
-  user: "u519611382_SuP59",        // ← USUÁRIO CORRETO
-  password: "21@Joao21",            // ← SENHA QUE VOCÊ DEFINIU
-  database: "u519611382_1T9bc4",    // ← BANCO CORRETO
+  user: "u519611382_fluxo",         // ← NOVO USUÁRIO
+  password: "A_SENHA_QUE_VOCE_DEFINIU",  // ← A SENHA QUE VOCÊ COLOCOU AO CRIAR
+  database: "u519611382_1T9bc4",    // ← SEU BANCO
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0
@@ -21,8 +21,6 @@ const db = mysql.createPool({
 db.getConnection((err, connection) => {
   if (err) {
     console.log("❌ Erro ao conectar:", err.message);
-    console.log("Usuário:", "u519611382_SuP59");
-    console.log("Banco:", "u519611382_1T9bc4");
   } else {
     console.log("✅ Conectado ao MySQL com sucesso!");
     console.log("📊 Banco:", "u519611382_1T9bc4");
@@ -83,8 +81,6 @@ app.post("/api/login", (req, res) => {
       console.log("❌ Erro SQL:", err);
       return res.status(500).json({ success: false, error: "Erro no banco: " + err.message });
     }
-
-    console.log("📊 Resultados:", results.length);
 
     if (results.length === 0) {
       return res.json({ success: false, error: "Usuário não encontrado" });
