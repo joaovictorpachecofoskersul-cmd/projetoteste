@@ -103,7 +103,7 @@ app.get("/api/saldo", (req, res) => {
 });
 
 // ========================
-// NOVAS ROTAS DE PRODUTOS E VENDAS (COLOQUE AQUI)
+// ROTAS DE PRODUTOS E VENDAS
 // ========================
 
 // Listar todos os produtos
@@ -258,6 +258,20 @@ app.get("/api/relatorio/vendas", (req, res) => {
         if (err) return res.status(500).json({ error: err.message });
         res.json({ success: true, relatorio: results });
     });
+});
+
+// ========================
+// ROTAS DAS PÁGINAS HTML (COLOQUE AQUI!)
+// ========================
+
+// Rota para página de produtos
+app.get("/produtos", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "produtos.html"));
+});
+
+// Rota para página do PDV
+app.get("/pdv", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "pdv.html"));
 });
 
 // ========================
