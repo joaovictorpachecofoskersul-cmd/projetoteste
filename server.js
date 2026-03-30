@@ -9,9 +9,9 @@ const app = express();
 // ========================
 const db = mysql.createPool({
   host: "auth-db1601.hstgr.io",
-  user: "u51961382_SuPS9",        // ← USUÁRIO CORRETO!
-  password: "21@Elesig",           // ← SUA SENHA
-  database: "u51961382_T9bc4",     // ← BANCO CORRETO!
+  user: "u519611382_8uP59",
+  password: "21@Elesig",  // ou a senha que você redefinir
+  database: "u519611382_T9bc4",  // ← SÓ ESTE BANCO
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0
