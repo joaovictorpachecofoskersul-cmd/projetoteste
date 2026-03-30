@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Fluxo de Caixa</title>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <style>
 * {
     margin: 0;
@@ -24,7 +24,6 @@ body {
     margin: 0 auto;
 }
 
-/* Header */
 .header {
     background: white;
     border-radius: 15px;
@@ -39,9 +38,6 @@ body {
 .header h1 {
     color: #333;
     font-size: 28px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
 }
 
 .logout-btn {
@@ -52,15 +48,8 @@ body {
     border-radius: 8px;
     cursor: pointer;
     font-size: 14px;
-    transition: all 0.3s;
 }
 
-.logout-btn:hover {
-    background: #c82333;
-    transform: scale(1.02);
-}
-
-/* Cards lado a lado */
 .dashboard-cards {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -74,18 +63,12 @@ body {
     padding: 25px;
     text-align: center;
     box-shadow: 0 5px 20px rgba(0,0,0,0.1);
-    transition: transform 0.3s;
-}
-
-.card:hover {
-    transform: translateY(-5px);
 }
 
 .card h3 {
     color: #666;
     font-size: 14px;
     text-transform: uppercase;
-    letter-spacing: 1px;
     margin-bottom: 15px;
 }
 
@@ -102,7 +85,6 @@ body {
     color: #dc3545;
 }
 
-/* Gráfico e Relatório lado a lado */
 .row-duas-colunas {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -127,6 +109,7 @@ body {
 
 canvas {
     max-height: 300px;
+    width: 100%;
 }
 
 .relatorio-lista {
@@ -137,6 +120,7 @@ canvas {
 .relatorio-item {
     display: flex;
     justify-content: space-between;
+    align-items: center;
     padding: 12px;
     border-bottom: 1px solid #eee;
 }
@@ -148,11 +132,12 @@ canvas {
 .relatorio-data {
     font-size: 12px;
     color: #888;
+    min-width: 80px;
 }
 
 .relatorio-descricao {
     flex: 1;
-    margin-left: 15px;
+    margin: 0 15px;
 }
 
 .relatorio-valor {
@@ -167,7 +152,6 @@ canvas {
     color: #dc3545;
 }
 
-/* Formulário */
 .form-movimentacao {
     background: white;
     border-radius: 15px;
@@ -205,13 +189,6 @@ canvas {
     border: 1px solid #ddd;
     border-radius: 8px;
     font-size: 14px;
-    transition: all 0.3s;
-}
-
-.form-group input:focus, .form-group select:focus {
-    outline: none;
-    border-color: #667eea;
-    box-shadow: 0 0 0 3px rgba(102,126,234,0.1);
 }
 
 button[type="submit"] {
@@ -223,12 +200,6 @@ button[type="submit"] {
     cursor: pointer;
     font-size: 16px;
     font-weight: bold;
-    transition: all 0.3s;
-}
-
-button[type="submit"]:hover {
-    background: #5a67d8;
-    transform: scale(1.02);
 }
 
 .message {
@@ -248,7 +219,6 @@ button[type="submit"]:hover {
     color: #721c24;
 }
 
-/* Login */
 .login-container {
     display: flex;
     justify-content: center;
@@ -270,16 +240,13 @@ button[type="submit"]:hover {
     margin-bottom: 30px;
 }
 
-/* Responsivo */
 @media (max-width: 768px) {
     .dashboard-cards {
         grid-template-columns: 1fr;
     }
-    
     .row-duas-colunas {
         grid-template-columns: 1fr;
     }
-    
     .form-row {
         grid-template-columns: 1fr;
     }
@@ -309,13 +276,11 @@ button[type="submit"]:hover {
 
 <div id="mainScreen" style="display:none;">
     <div class="container">
-        <!-- Header -->
         <div class="header">
             <h1>💰 Fluxo de Caixa</h1>
             <button class="logout-btn" onclick="logout()">Sair</button>
         </div>
 
-        <!-- Cards lado a lado -->
         <div class="dashboard-cards">
             <div class="card">
                 <h3>Saldo Atual</h3>
@@ -331,11 +296,10 @@ button[type="submit"]:hover {
             </div>
         </div>
 
-        <!-- Gráfico e Relatório lado a lado -->
         <div class="row-duas-colunas">
             <div class="card-grafico">
                 <h3>📊 Gráfico de Movimentações</h3>
-                <canvas id="graficoMovimentacoes"></canvas>
+                <canvas id="graficoMovimentacoes" width="400" height="300"></canvas>
             </div>
             <div class="card-relatorio">
                 <h3>📋 Últimas Movimentações</h3>
@@ -345,7 +309,6 @@ button[type="submit"]:hover {
             </div>
         </div>
 
-        <!-- Formulário -->
         <div class="form-movimentacao">
             <h3>📝 Nova Movimentação</h3>
             <form id="movimentacaoForm">
@@ -433,11 +396,12 @@ function atualizarGrafico(movimentacoes) {
     const entradas = movimentacoes.filter(m => m.tipo === 'entrada').reduce((s, m) => s + parseFloat(m.valor), 0);
     const saidas = movimentacoes.filter(m => m.tipo === 'saida').reduce((s, m) => s + parseFloat(m.valor), 0);
     
+    const ctx = document.getElementById('graficoMovimentacoes').getContext('2d');
+    
     if (grafico) {
         grafico.destroy();
     }
     
-    const ctx = document.getElementById('graficoMovimentacoes').getContext('2d');
     grafico = new Chart(ctx, {
         type: 'doughnut',
         data: {
@@ -450,9 +414,13 @@ function atualizarGrafico(movimentacoes) {
         },
         options: {
             responsive: true,
+            maintainAspectRatio: true,
             plugins: {
                 legend: {
-                    position: 'bottom'
+                    position: 'bottom',
+                    labels: {
+                        font: { size: 14 }
+                    }
                 }
             }
         }
