@@ -5,12 +5,12 @@ const mysql = require("mysql2");
 const app = express();
 
 // ========================
-// CONEXÃO MYSQL - NOVO USUÁRIO FLUXO
+// CONEXÃO MYSQL - USUÁRIO FLUXO
 // ========================
 const db = mysql.createPool({
   host: "auth-db1601.hstgr.io",
-  user: "u519611382_fluxo",         // ← NOVO USUÁRIO
-  password: "A_SENHA_QUE_VOCE_DEFINIU",  // ← A SENHA QUE VOCÊ COLOCOU AO CRIAR
+  user: "u519611382_fluxo",         // ← SEU NOVO USUÁRIO
+  password: "A_SENHA_QUE_VOCE_COLOCOU",  // ← A SENHA QUE VOCÊ DEFINIU
   database: "u519611382_1T9bc4",    // ← SEU BANCO
   waitForConnections: true,
   connectionLimit: 10,
