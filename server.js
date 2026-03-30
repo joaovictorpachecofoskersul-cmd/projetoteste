@@ -5,13 +5,13 @@ const mysql = require("mysql2");
 const app = express();
 
 // ========================
-// CONEXÃO MYSQL - BANCO CORRETO
+// CONEXÃO MYSQL - COM USUÁRIO CORRETO
 // ========================
 const db = mysql.createPool({
   host: "auth-db1601.hstgr.io",
-  user: "u519611382_8uP59",
-  password: "21@Elesig",
-  database: "u519611382_T9bc4",  // ← BANCO CORRETO
+  user: "u519611382_8uP5F9",  // ← ATUALIZE COM O USUÁRIO EXATO DO SEU PAINEL
+  password: "21@Elesig",       // ← VERIFIQUE SE A SENHA ESTÁ CORRETA
+  database: "u519611382_T9bc4",
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0
@@ -20,10 +20,12 @@ const db = mysql.createPool({
 // Testar conexão
 db.getConnection((err, connection) => {
   if (err) {
-    console.log("❌ Erro ao conectar:", err.message);
+    console.log("❌ Erro detalhado:");
+    console.log("   Código:", err.code);
+    console.log("   Mensagem:", err.message);
+    console.log("   Usuário usado:", "u519611382_8uP5F9");
   } else {
     console.log("✅ Conectado ao MySQL!");
-    console.log("📊 Banco:", "u519611382_T9bc4");
     connection.release();
   }
 });
@@ -43,15 +45,63 @@ app.get("/", (req, res) => {
 });
 
 // ========================
-// TESTE DO BANCO
+// SETUP - CRIAR TABELAS
+// ========================
+app.get("/setup", (req, res) => {
+  const createUsers = `
+    CREATE TABLE IF NOT EXISTS users (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      user VARCHAR(100) NOT NULL UNIQUE,
+      pass VARCHAR(255) NOT NULL,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )
+  `;
+  
+  const createMovimentacoes = `
+    CREATE TABLE IF NOT EXISTS movimentacoes (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      tipo VARCHAR(20) NOT NULL,
+      valor DECIMAL(10,2) NOT NULL,
+      descricao TEXT,
+      data TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )
+  `;
+  
+  const insertAdmin = `
+    INSERT IGNORE INTO users (user, pass) VALUES ('admin', '123')
+  `;
+  
+  db.query(createUsers, (err) => {
+    if (err) return res.json({ error: "Erro users", details: err.message });
+    
+    db.query(createMovimentacoes, (err) => {
+      if (err) return res.json({ error: "Erro movimentacoes", details: err.message });
+      
+      db.query(insertAdmin, (err) => {
+        if (err) return res.json({ error: "Erro admin", details: err.message });
+        
+        res.json({ 
+          success: true, 
+          message: "Tudo criado! Use admin/123 para login"
+        });
+      });
+    });
+  });
+});
+
+// ========================
+// TESTE BANCO
 // ========================
 app.get("/teste-db", (req, res) => {
   db.query("SELECT * FROM users", (err, results) => {
     if (err) {
-      console.log("Erro:", err);
-      return res.json({ error: err.message });
+      return res.json({ 
+        error: err.message, 
+        code: err.code,
+        user: "u519611382_8uP5F9"
+      });
     }
-    res.json({ success: true, users: results, total: results.length });
+    res.json({ success: true, users: results });
   });
 });
 
@@ -77,8 +127,6 @@ app.post("/api/login", (req, res) => {
       console.log("❌ Erro SQL:", err);
       return res.status(500).json({ success: false, error: "Erro no banco: " + err.message });
     }
-
-    console.log("📊 Resultados:", results.length);
 
     if (results.length === 0) {
       return res.json({ success: false, error: "Usuário não encontrado" });
@@ -115,8 +163,7 @@ app.post("/api/movimentacao", (req, res) => {
       console.log("❌ Erro:", err);
       return res.json({ success: false, error: err.message });
     }
-    console.log("✅ Movimentação salva");
-    return res.json({ success: true });
+    res.json({ success: true });
   });
 });
 
@@ -152,12 +199,7 @@ app.get("/api/saldo", (req, res) => {
     const total_saidas = parseFloat(results[0].total_saidas) || 0;
     const saldo = total_entradas - total_saidas;
     
-    res.json({ 
-      success: true, 
-      saldo, 
-      total_entradas, 
-      total_saidas 
-    });
+    res.json({ success: true, saldo, total_entradas, total_saidas });
   });
 });
 
@@ -170,6 +212,5 @@ app.listen(PORT, "0.0.0.0", () => {
   console.log("=".repeat(50));
   console.log("🚀 Servidor rodando na porta", PORT);
   console.log("🌐 http://localhost:" + PORT);
-  console.log("📊 Banco conectado: u519611382_T9bc4");
   console.log("=".repeat(50));
 });
