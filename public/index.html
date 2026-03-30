@@ -166,6 +166,17 @@ app.put("/api/produtos/:id/estoque", (req, res) => {
 });
 
 // ========================
+// ROTA PARA VERIFICAR ESTOQUE
+// ========================
+app.get("/api/verificar-estoque/:id", (req, res) => {
+    const { id } = req.params;
+    db.query("SELECT * FROM produtos WHERE id = ?", [id], (err, results) => {
+        if (err) return res.json({ error: err.message });
+        res.json({ produto: results[0] });
+    });
+});
+
+// ========================
 // VENDAS - COM REGISTRO NO FLUXO DE CAIXA E BAIXA DE ESTOQUE
 // ========================
 app.post("/api/venda-simples", (req, res) => {
@@ -184,7 +195,7 @@ app.post("/api/venda-simples", (req, res) => {
         total += (item.preco_unitario || 0) * (item.quantidade || 0);
     });
     
-    console.log("Total:", total);
+    console.log("Total calculado:", total);
     
     // Inserir venda
     const sqlVenda = `INSERT INTO vendas (usuario_id, cliente_nome, total, forma_pagamento) 
@@ -192,12 +203,12 @@ app.post("/api/venda-simples", (req, res) => {
     
     db.query(sqlVenda, [1, cliente_nome || 'Cliente', total, forma_pagamento || 'dinheiro'], (err, result) => {
         if (err) {
-            console.log("❌ Erro:", err.message);
+            console.log("❌ Erro ao inserir venda:", err.message);
             return res.json({ success: false, error: err.message });
         }
         
         const vendaId = result.insertId;
-        console.log("✅ Venda ID:", vendaId);
+        console.log("✅ Venda inserida ID:", vendaId);
         
         // Inserir itens e DAR BAIXA NO ESTOQUE
         let itensProcessados = 0;
@@ -217,18 +228,29 @@ app.post("/api/venda-simples", (req, res) => {
         }
         
         itens.forEach((item, index) => {
+            console.log(`Processando item ${index + 1}: produto_id=${item.produto_id}, quantidade=${item.quantidade}`);
+            
             // Primeiro, verificar estoque
-            db.query("SELECT estoque FROM produtos WHERE id = ?", [item.produto_id], (err, results) => {
+            db.query("SELECT id, nome, estoque FROM produtos WHERE id = ?", [item.produto_id], (err, results) => {
                 if (err) {
                     console.log("❌ Erro ao verificar estoque:", err.message);
                     itensProcessados++;
                     return;
                 }
                 
-                const estoqueAtual = results[0]?.estoque || 0;
+                if (results.length === 0) {
+                    console.log(`❌ Produto ID ${item.produto_id} não encontrado!`);
+                    itensProcessados++;
+                    return;
+                }
+                
+                const produto = results[0];
+                const estoqueAtual = produto.estoque || 0;
+                
+                console.log(`Produto: ${produto.nome}, Estoque atual: ${estoqueAtual}, Solicitado: ${item.quantidade}`);
                 
                 if (estoqueAtual < item.quantidade) {
-                    console.log(`❌ Estoque insuficiente para produto ID ${item.produto_id}. Disponível: ${estoqueAtual}, Solicitado: ${item.quantidade}`);
+                    console.log(`❌ Estoque insuficiente! Disponível: ${estoqueAtual}`);
                     itensProcessados++;
                     return;
                 }
@@ -246,7 +268,7 @@ app.post("/api/venda-simples", (req, res) => {
                         return;
                     }
                     
-                    console.log(`✅ Item ${index + 1} inserido: ${item.quantidade}x do produto ID ${item.produto_id}`);
+                    console.log(`✅ Item ${index + 1} inserido: ${item.quantidade}x de ${produto.nome}`);
                     
                     // DAR BAIXA NO ESTOQUE
                     const sqlEstoque = "UPDATE produtos SET estoque = estoque - ? WHERE id = ?";
@@ -254,7 +276,7 @@ app.post("/api/venda-simples", (req, res) => {
                         if (err) {
                             console.log("❌ Erro ao dar baixa no estoque:", err.message);
                         } else {
-                            console.log(`✅ Estoque atualizado: -${item.quantidade} do produto ID ${item.produto_id}`);
+                            console.log(`✅ Estoque atualizado: -${item.quantidade} do produto ${produto.nome}`);
                         }
                         
                         itensProcessados++;
@@ -272,6 +294,7 @@ app.post("/api/venda-simples", (req, res) => {
                                     console.log(`✅ Entrada de R$ ${total} registrada no fluxo de caixa`);
                                 }
                                 
+                                console.log("🎉 Venda finalizada com sucesso!");
                                 res.json({ success: true, venda_id: vendaId, total: total });
                             });
                         }
