@@ -23,6 +23,7 @@
             align-items: center;
             flex-wrap: wrap;
             gap: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
         .header h1 { color: #333; font-size: 24px; }
         .nav-buttons { display: flex; gap: 10px; flex-wrap: wrap; }
@@ -33,7 +34,9 @@
             border-radius: 8px;
             text-decoration: none;
             display: inline-block;
+            transition: transform 0.2s;
         }
+        .nav-btn:hover { transform: scale(1.05); }
         .logout-btn {
             background: #dc3545;
             color: white;
@@ -54,9 +57,11 @@
             padding: 20px;
             text-align: center;
             box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
         }
-        .card h3 { color: #666; font-size: 14px; margin-bottom: 10px; }
-        .valor { font-size: 28px; font-weight: bold; }
+        .card:hover { transform: translateY(-5px); }
+        .card h3 { color: #666; font-size: 14px; margin-bottom: 10px; text-transform: uppercase; }
+        .valor { font-size: 32px; font-weight: bold; }
         .positivo { color: #28a745; }
         .negativo { color: #dc3545; }
         .row {
@@ -71,29 +76,85 @@
             padding: 20px;
             box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
-        .card-grafico h3, .card-lista h3 { margin-bottom: 15px; color: #333; }
-        .resumo-valores {
-            text-align: center;
-            padding: 30px;
-        }
-        .resumo-entrada {
-            background: #d4edda;
-            color: #155724;
+        .card-grafico h3, .card-lista h3 { margin-bottom: 15px; color: #333; border-left: 4px solid #667eea; padding-left: 15px; }
+        
+        /* Gráfico simples em CSS */
+        .grafico-simples {
             padding: 20px;
-            border-radius: 10px;
-            margin-bottom: 15px;
         }
-        .resumo-saida {
-            background: #f8d7da;
-            color: #721c24;
-            padding: 20px;
-            border-radius: 10px;
+        .barra-container {
+            margin-bottom: 25px;
         }
-        .resumo-entrada span, .resumo-saida span {
-            font-size: 24px;
+        .barra-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
             font-weight: bold;
-            display: block;
-            margin-top: 10px;
+        }
+        .barra-label .entrada-label { color: #28a745; }
+        .barra-label .saida-label { color: #dc3545; }
+        .barra-fundo {
+            background: #e9ecef;
+            border-radius: 10px;
+            height: 35px;
+            overflow: hidden;
+        }
+        .barra {
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 10px;
+            color: white;
+            font-weight: bold;
+            font-size: 14px;
+            transition: width 0.5s ease;
+        }
+        .barra-entrada {
+            background: linear-gradient(90deg, #28a745, #34ce57);
+            width: 0%;
+        }
+        .barra-saida {
+            background: linear-gradient(90deg, #dc3545, #ff6b6b);
+            width: 0%;
+        }
+        .doughnut {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 40px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+        .doughnut-item {
+            text-align: center;
+        }
+        .doughnut-circle {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            margin-bottom: 10px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .entrada-circle {
+            background: conic-gradient(#28a745 0deg, #e9ecef 0deg);
+        }
+        .saida-circle {
+            background: conic-gradient(#dc3545 0deg, #e9ecef 0deg);
+        }
+        .circle-inner {
+            width: 70px;
+            height: 70px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 18px;
         }
         .lista {
             max-height: 300px;
@@ -102,9 +163,17 @@
         .item-lista {
             display: flex;
             justify-content: space-between;
-            padding: 10px;
+            align-items: center;
+            padding: 12px;
             border-bottom: 1px solid #eee;
+            transition: background 0.2s;
         }
+        .item-lista:hover { background: #f8f9fa; }
+        .item-data { font-size: 12px; color: #888; min-width: 80px; }
+        .item-descricao { flex: 1; margin: 0 10px; }
+        .item-valor { font-weight: bold; }
+        .item-valor.entrada { color: #28a745; }
+        .item-valor.saida { color: #dc3545; }
         .form-card {
             background: white;
             border-radius: 15px;
@@ -113,12 +182,17 @@
             box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
         .form-group { margin-bottom: 15px; }
-        .form-group label { display: block; margin-bottom: 5px; color: #555; }
+        .form-group label { display: block; margin-bottom: 5px; color: #555; font-weight: 500; }
         .form-group input, .form-group select {
             width: 100%;
-            padding: 10px;
+            padding: 12px;
             border: 1px solid #ddd;
             border-radius: 8px;
+            font-size: 14px;
+        }
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
         }
         button {
             background: #28a745;
@@ -128,7 +202,10 @@
             border-radius: 8px;
             cursor: pointer;
             font-size: 16px;
+            font-weight: bold;
+            transition: background 0.2s;
         }
+        button:hover { background: #218838; }
         .login-container {
             display: flex;
             justify-content: center;
@@ -148,6 +225,7 @@
         .error { background: #f8d7da; color: #721c24; }
         @media (max-width: 768px) {
             .cards, .row { grid-template-columns: 1fr; }
+            .doughnut { flex-direction: column; }
         }
     </style>
 </head>
@@ -199,15 +277,25 @@
 
         <div class="row">
             <div class="card-grafico">
-                <h3>📊 Resumo</h3>
-                <div class="resumo-valores">
-                    <div class="resumo-entrada">
-                        <strong>💰 Total Entradas</strong>
-                        <span id="resumoEntradas">R$ 0,00</span>
+                <h3>📊 Gráfico de Movimentações</h3>
+                <div class="grafico-simples">
+                    <div class="barra-container">
+                        <div class="barra-label">
+                            <span class="entrada-label">💰 Entradas</span>
+                            <span id="percentEntradas">0%</span>
+                        </div>
+                        <div class="barra-fundo">
+                            <div class="barra barra-entrada" id="barraEntradas">R$ 0</div>
+                        </div>
                     </div>
-                    <div class="resumo-saida">
-                        <strong>💸 Total Saídas</strong>
-                        <span id="resumoSaidas">R$ 0,00</span>
+                    <div class="barra-container">
+                        <div class="barra-label">
+                            <span class="saida-label">💸 Saídas</span>
+                            <span id="percentSaidas">0%</span>
+                        </div>
+                        <div class="barra-fundo">
+                            <div class="barra barra-saida" id="barraSaidas">R$ 0</div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -250,6 +338,28 @@ function formatarMoeda(valor) {
     return 'R$ ' + valor.toFixed(2).replace('.', ',');
 }
 
+function atualizarGrafico(entradas, saidas) {
+    const total = entradas + saidas;
+    const percentEntradas = total > 0 ? (entradas / total * 100).toFixed(1) : 0;
+    const percentSaidas = total > 0 ? (saidas / total * 100).toFixed(1) : 0;
+    
+    const maxValor = Math.max(entradas, saidas, 1);
+    const larguraEntradas = (entradas / maxValor * 100).toFixed(1);
+    const larguraSaidas = (saidas / maxValor * 100).toFixed(1);
+    
+    document.getElementById('percentEntradas').textContent = percentEntradas + '%';
+    document.getElementById('percentSaidas').textContent = percentSaidas + '%';
+    
+    const barraEntradas = document.getElementById('barraEntradas');
+    const barraSaidas = document.getElementById('barraSaidas');
+    
+    barraEntradas.style.width = larguraEntradas + '%';
+    barraEntradas.textContent = formatarMoeda(entradas);
+    
+    barraSaidas.style.width = larguraSaidas + '%';
+    barraSaidas.textContent = formatarMoeda(saidas);
+}
+
 async function carregarDados() {
     try {
         const res = await fetch('/api/saldo');
@@ -259,8 +369,7 @@ async function carregarDados() {
             document.getElementById('saldo').innerHTML = formatarMoeda(data.saldo);
             document.getElementById('totalEntradas').innerHTML = formatarMoeda(data.entradas);
             document.getElementById('totalSaidas').innerHTML = formatarMoeda(data.saidas);
-            document.getElementById('resumoEntradas').innerHTML = formatarMoeda(data.entradas);
-            document.getElementById('resumoSaidas').innerHTML = formatarMoeda(data.saidas);
+            atualizarGrafico(data.entradas, data.saidas);
         }
     } catch (err) {
         console.error('Erro:', err);
@@ -276,15 +385,15 @@ async function carregarMovimentacoes() {
             const lista = document.getElementById('listaMovimentacoes');
             
             if (data.movimentacoes.length === 0) {
-                lista.innerHTML = '<div style="text-align: center;">Nenhuma movimentação</div>';
+                lista.innerHTML = '<div style="text-align: center; color: #888;">Nenhuma movimentação</div>';
                 return;
             }
             
             lista.innerHTML = data.movimentacoes.slice(0, 10).map(m => `
                 <div class="item-lista">
-                    <div style="font-size: 12px; color: #888;">${new Date(m.data).toLocaleDateString()}</div>
-                    <div style="flex: 1; margin: 0 10px;">${m.descricao || '-'}</div>
-                    <div style="color: ${m.tipo === 'entrada' ? '#28a745' : '#dc3545'}; font-weight: bold;">
+                    <div class="item-data">${new Date(m.data).toLocaleDateString()}</div>
+                    <div class="item-descricao">${m.descricao || '-'}</div>
+                    <div class="item-valor ${m.tipo}">
                         ${m.tipo === 'entrada' ? '+' : '-'} ${formatarMoeda(m.valor)}
                     </div>
                 </div>
