@@ -5,36 +5,25 @@ const mysql = require("mysql2");
 const app = express();
 
 // ========================
-// CONEXÃO MYSQL HOSTINGER (COM DEBUG)
+// CONEXÃO MYSQL - BANCO CORRETO
 // ========================
-console.log("🔧 Tentando conectar ao MySQL...");
-console.log("📊 Configurações:");
-console.log("   Host:", "auth-db1601.hstgr.io");
-console.log("   User:", "u519611382_8uP59");
-console.log("   Database:", "u519611382_7Pbcd4");
-
 const db = mysql.createPool({
   host: "auth-db1601.hstgr.io",
   user: "u519611382_8uP59",
   password: "21@Elesig",
-  database: "u519611382_7Pbcd4",
+  database: "u519611382_T9bc4",  // ← BANCO CORRETO
   waitForConnections: true,
   connectionLimit: 10,
-  queueLimit: 0,
-  // Adicionar timeout para debug
-  connectTimeout: 10000
+  queueLimit: 0
 });
 
-// Testar conexão com mais detalhes
+// Testar conexão
 db.getConnection((err, connection) => {
   if (err) {
-    console.log("❌ ERRO DETALHADO AO CONECTAR:");
-    console.log("   Código:", err.code);
-    console.log("   Mensagem:", err.message);
-    console.log("   Erro completo:", err);
+    console.log("❌ Erro ao conectar:", err.message);
   } else {
-    console.log("✅ Conectado ao MySQL com sucesso!");
-    console.log("📊 Banco de dados: u519611382_7Pbcd4");
+    console.log("✅ Conectado ao MySQL!");
+    console.log("📊 Banco:", "u519611382_T9bc4");
     connection.release();
   }
 });
@@ -54,39 +43,20 @@ app.get("/", (req, res) => {
 });
 
 // ========================
-// TESTE DA API
-// ========================
-app.get("/api", (req, res) => {
-  res.json({ 
-    status: "ok", 
-    message: "Servidor funcionando!",
-    timestamp: new Date().toISOString()
-  });
-});
-
-// ========================
-// TESTE DO BANCO DE DADOS
+// TESTE DO BANCO
 // ========================
 app.get("/teste-db", (req, res) => {
   db.query("SELECT * FROM users", (err, results) => {
     if (err) {
-      console.log("❌ Erro no teste-db:", err);
-      return res.status(500).json({ 
-        success: false, 
-        error: err.message,
-        code: err.code
-      });
+      console.log("Erro:", err);
+      return res.json({ error: err.message });
     }
-    res.json({ 
-      success: true, 
-      users: results,
-      total: results.length 
-    });
+    res.json({ success: true, users: results, total: results.length });
   });
 });
 
 // ========================
-// LOGIN DO USUÁRIO
+// LOGIN
 // ========================
 app.post("/api/login", (req, res) => {
   let { user, pass } = req.body;
@@ -94,109 +64,59 @@ app.post("/api/login", (req, res) => {
   user = user ? user.trim() : "";
   pass = pass ? pass.trim() : "";
 
-  console.log("📥 Tentativa de login recebida:");
-  console.log("   Usuário:", user);
-  console.log("   Senha:", pass ? "******" : "vazia");
+  console.log("📥 Tentativa login:", user);
 
   if (!user || !pass) {
-    console.log("❌ Dados vazios");
-    return res.json({ 
-      success: false, 
-      error: "Preencha usuário e senha" 
-    });
+    return res.json({ success: false, error: "Preencha usuário e senha" });
   }
 
-  const sql = "SELECT id, user, pass FROM users WHERE user = ?";
+  const sql = "SELECT * FROM users WHERE user = ?";
   
   db.query(sql, [user], (err, results) => {
     if (err) {
-      console.log("❌ Erro na consulta SQL:", err);
-      return res.status(500).json({ 
-        success: false, 
-        error: "Erro no banco de dados" 
-      });
+      console.log("❌ Erro SQL:", err);
+      return res.status(500).json({ success: false, error: "Erro no banco: " + err.message });
     }
 
-    console.log("📊 Resultados encontrados:", results.length);
+    console.log("📊 Resultados:", results.length);
 
     if (results.length === 0) {
-      console.log("❌ Usuário não encontrado:", user);
-      return res.json({ 
-        success: false, 
-        error: "Usuário não encontrado" 
-      });
+      return res.json({ success: false, error: "Usuário não encontrado" });
     }
 
     const usuario = results[0];
-    console.log("👤 Usuário encontrado:", usuario.user, "(ID:", usuario.id + ")");
 
-    // Comparação simples de senha (recomendo usar bcrypt em produção)
     if (usuario.pass !== pass) {
-      console.log("❌ Senha incorreta para:", user);
-      return res.json({ 
-        success: false, 
-        error: "Senha incorreta" 
-      });
+      return res.json({ success: false, error: "Senha incorreta" });
     }
 
-    console.log("✅ Login bem-sucedido:", user);
+    console.log("✅ Login OK:", user);
     return res.json({ 
       success: true, 
-      user: { 
-        id: usuario.id, 
-        user: usuario.user 
-      }
+      user: { id: usuario.id, user: usuario.user }
     });
   });
 });
 
 // ========================
-// REGISTRAR MOVIMENTAÇÃO
+// MOVIMENTAÇÃO
 // ========================
 app.post("/api/movimentacao", (req, res) => {
   const { tipo, valor, descricao } = req.body;
 
-  console.log("📝 Nova movimentação:");
-  console.log("   Tipo:", tipo);
-  console.log("   Valor:", valor);
-  console.log("   Descrição:", descricao);
-
   if (!tipo || !valor) {
-    console.log("❌ Dados incompletos");
-    return res.json({ 
-      success: false, 
-      error: "Tipo e valor são obrigatórios" 
-    });
+    return res.json({ success: false, error: "Dados incompletos" });
   }
 
-  // Validar tipo
-  if (tipo !== 'entrada' && tipo !== 'saida') {
-    console.log("❌ Tipo inválido:", tipo);
-    return res.json({ 
-      success: false, 
-      error: "Tipo deve ser 'entrada' ou 'saida'" 
-    });
-  }
-
-  const sql = `
-    INSERT INTO movimentacoes (tipo, valor, descricao) 
-    VALUES (?, ?, ?)
-  `;
+  const sql = `INSERT INTO movimentacoes (tipo, valor, descricao) VALUES (?, ?, ?)`;
   
   db.query(sql, [tipo, valor, descricao || null], (err, result) => {
     if (err) {
-      console.log("❌ Erro ao inserir movimentação:", err);
-      return res.json({ 
-        success: false, 
-        error: err.message 
-      });
+      console.log("❌ Erro:", err);
+      return res.json({ success: false, error: err.message });
     }
-    
-    console.log("✅ Movimentação registrada com ID:", result.insertId);
-    return res.json({ 
-      success: true, 
-      id: result.insertId 
-    });
+    console.log("✅ Movimentação salva");
+    return res.json({ success: true });
   });
 });
 
@@ -204,26 +124,16 @@ app.post("/api/movimentacao", (req, res) => {
 // LISTAR MOVIMENTAÇÕES
 // ========================
 app.get("/api/movimentacoes", (req, res) => {
-  const sql = "SELECT * FROM movimentacoes ORDER BY data DESC LIMIT 100";
-  
-  db.query(sql, (err, results) => {
+  db.query("SELECT * FROM movimentacoes ORDER BY data DESC", (err, results) => {
     if (err) {
-      console.log("❌ Erro ao listar movimentações:", err);
-      return res.status(500).json({ 
-        success: false, 
-        error: err.message 
-      });
+      return res.status(500).json({ success: false, error: err.message });
     }
-    
-    res.json({ 
-      success: true, 
-      movimentacoes: results 
-    });
+    res.json({ success: true, movimentacoes: results });
   });
 });
 
 // ========================
-// SALDO TOTAL
+// SALDO
 // ========================
 app.get("/api/saldo", (req, res) => {
   const sql = `
@@ -235,11 +145,7 @@ app.get("/api/saldo", (req, res) => {
   
   db.query(sql, (err, results) => {
     if (err) {
-      console.log("❌ Erro ao calcular saldo:", err);
-      return res.status(500).json({ 
-        success: false, 
-        error: err.message 
-      });
+      return res.status(500).json({ success: false, error: err.message });
     }
     
     const total_entradas = parseFloat(results[0].total_entradas) || 0;
@@ -248,20 +154,10 @@ app.get("/api/saldo", (req, res) => {
     
     res.json({ 
       success: true, 
-      saldo: saldo,
-      total_entradas: total_entradas,
-      total_saidas: total_saidas
+      saldo, 
+      total_entradas, 
+      total_saidas 
     });
-  });
-});
-
-// ========================
-// ROTA 404 - PÁGINA NÃO ENCONTRADA
-// ========================
-app.use((req, res) => {
-  res.status(404).json({ 
-    success: false, 
-    error: "Rota não encontrada" 
   });
 });
 
@@ -272,11 +168,8 @@ const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, "0.0.0.0", () => {
   console.log("=".repeat(50));
-  console.log("🚀 SERVIDOR FLUXO DE CAIXA INICIADO");
-  console.log("=".repeat(50));
-  console.log(`📡 Porta: ${PORT}`);
-  console.log(`🌐 Local: http://localhost:${PORT}`);
-  console.log(`📁 Diretório: ${__dirname}`);
-  console.log(`🔄 Ambiente: ${process.env.NODE_ENV || "development"}`);
+  console.log("🚀 Servidor rodando na porta", PORT);
+  console.log("🌐 http://localhost:" + PORT);
+  console.log("📊 Banco conectado: u519611382_T9bc4");
   console.log("=".repeat(50));
 });
