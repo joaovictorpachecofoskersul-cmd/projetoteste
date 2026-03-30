@@ -2,10 +2,25 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>Gestão de Produtos - Fluxo de Caixa</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <style>
+        :root {
+            --primary: #4361ee;
+            --primary-dark: #3a56d4;
+            --secondary: #7209b7;
+            --success: #06d6a0;
+            --danger: #ef476f;
+            --warning: #ffd166;
+            --dark: #2b2d42;
+            --light: #f8f9fa;
+            --gray: #6c757d;
+            --white: #ffffff;
+            --shadow: 0 10px 30px rgba(0,0,0,0.1);
+            --shadow-hover: 0 15px 40px rgba(0,0,0,0.15);
+            --transition: all 0.3s ease;
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -14,7 +29,7 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
             min-height: 100vh;
             padding: 20px;
         }
@@ -25,62 +40,101 @@
         }
 
         .header {
-            background: white;
-            border-radius: 15px;
-            padding: 20px 30px;
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 15px 25px;
             margin-bottom: 30px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            flex-wrap: wrap;
+            gap: 15px;
+            box-shadow: var(--shadow);
         }
 
-        .header h1 {
-            color: #333;
-            font-size: 28px;
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: white;
+        }
+
+        .logo h1 {
+            font-size: 24px;
+            color: var(--dark);
+        }
+
+        .logo p {
+            font-size: 12px;
+            color: var(--gray);
         }
 
         .nav-buttons {
             display: flex;
-            gap: 15px;
+            gap: 12px;
+            flex-wrap: wrap;
         }
 
         .nav-btn {
-            background: #667eea;
-            color: white;
-            border: none;
+            background: var(--light);
+            color: var(--dark);
             padding: 10px 20px;
-            border-radius: 8px;
-            cursor: pointer;
+            border-radius: 12px;
             text-decoration: none;
-            display: inline-block;
+            font-weight: 500;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
         .nav-btn:hover {
-            background: #5a67d8;
+            background: var(--primary);
+            color: white;
+            transform: translateY(-2px);
         }
 
         .logout-btn {
-            background: #dc3545;
+            background: var(--danger);
             color: white;
             border: none;
-            padding: 10px 25px;
-            border-radius: 8px;
+            padding: 10px 20px;
+            border-radius: 12px;
             cursor: pointer;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+        .logout-btn:hover {
+            background: #d43f63;
+            transform: translateY(-2px);
         }
 
         .card {
-            background: white;
-            border-radius: 15px;
+            background: var(--white);
+            border-radius: 20px;
             padding: 25px;
             margin-bottom: 30px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            box-shadow: var(--shadow);
         }
 
         .card h2 {
             margin-bottom: 20px;
-            color: #333;
-            border-left: 4px solid #667eea;
+            color: var(--dark);
+            font-size: 20px;
+            border-left: 4px solid var(--primary);
             padding-left: 15px;
         }
 
@@ -98,39 +152,62 @@
         .form-group label {
             display: block;
             margin-bottom: 8px;
-            color: #555;
+            color: var(--dark);
             font-weight: 500;
         }
 
-        .form-group input, .form-group select, .form-group textarea {
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
             width: 100%;
-            padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
+            padding: 12px 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
             font-size: 14px;
+            transition: var(--transition);
         }
 
-        button {
-            background: #28a745;
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.1);
+        }
+
+        .btn-moderno {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
             color: white;
             border: none;
             padding: 12px 30px;
-            border-radius: 8px;
+            border-radius: 12px;
             cursor: pointer;
             font-size: 16px;
             font-weight: bold;
+            transition: var(--transition);
         }
 
-        button:hover {
-            background: #218838;
+        .btn-moderno:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
         }
 
         .btn-danger {
-            background: #dc3545;
+            background: linear-gradient(135deg, var(--danger), #d43f63);
         }
 
-        .btn-danger:hover {
-            background: #c82333;
+        .search-bar {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .search-bar input {
+            flex: 1;
+            padding: 12px 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            font-size: 14px;
         }
 
         table {
@@ -141,71 +218,34 @@
         th, td {
             padding: 12px;
             text-align: left;
-            border-bottom: 1px solid #ddd;
+            border-bottom: 1px solid #eee;
         }
 
         th {
-            background: #f8f9fa;
+            background: var(--light);
             font-weight: bold;
-            color: #555;
+            color: var(--dark);
         }
 
         tr:hover {
-            background: #f8f9fa;
+            background: var(--light);
         }
 
         .estoque-baixo {
-            color: #dc3545;
+            color: var(--danger);
             font-weight: bold;
         }
 
         .estoque-normal {
-            color: #28a745;
-        }
-
-        .search-bar {
-            margin-bottom: 20px;
-            display: flex;
-            gap: 10px;
-        }
-
-        .search-bar input {
-            flex: 1;
-            padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-        }
-
-        .search-bar button {
-            padding: 12px 20px;
-            background: #667eea;
-        }
-
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.5);
-            justify-content: center;
-            align-items: center;
-        }
-
-        .modal-content {
-            background: white;
-            padding: 30px;
-            border-radius: 15px;
-            width: 500px;
-            max-width: 90%;
+            color: var(--success);
         }
 
         .message {
             margin-top: 15px;
-            padding: 10px;
-            border-radius: 8px;
+            padding: 12px;
+            border-radius: 12px;
             text-align: center;
+            animation: fadeIn 0.3s ease;
         }
 
         .message.success {
@@ -218,25 +258,55 @@
             color: #721c24;
         }
 
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: var(--white);
+            padding: 30px;
+            border-radius: 20px;
+            width: 450px;
+            max-width: 90%;
+            box-shadow: var(--shadow);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
         @media (max-width: 768px) {
-            .form-row {
-                grid-template-columns: 1fr;
-            }
-            table {
-                font-size: 12px;
-            }
-            th, td {
-                padding: 8px;
-            }
+            body { padding: 10px; }
+            .header { flex-direction: column; text-align: center; }
+            .nav-buttons { justify-content: center; }
+            table { font-size: 12px; }
+            th, td { padding: 8px; }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>📦 Gestão de Produtos e Estoque</h1>
+            <div class="logo">
+                <div class="logo-icon">📦</div>
+                <div>
+                    <h1>Gestão de Produtos</h1>
+                    <p>Controle de estoque e produtos</p>
+                </div>
+            </div>
             <div class="nav-buttons">
                 <a href="/" class="nav-btn">💰 Fluxo de Caixa</a>
+                <a href="/pdv" class="nav-btn">🛒 PDV</a>
                 <button class="logout-btn" onclick="logout()">Sair</button>
             </div>
         </div>
@@ -278,7 +348,7 @@
                     <label>Descrição</label>
                     <textarea id="descricao" rows="2" placeholder="Descrição do produto"></textarea>
                 </div>
-                <button type="submit">Cadastrar Produto</button>
+                <button type="submit" class="btn-moderno">Cadastrar Produto</button>
             </form>
             <div id="mensagem" class="message"></div>
         </div>
@@ -287,8 +357,8 @@
             <h2>🔍 Buscar Produto</h2>
             <div class="search-bar">
                 <input type="text" id="busca" placeholder="Buscar por nome ou código de barras...">
-                <button onclick="buscarProdutos()">Buscar</button>
-                <button onclick="carregarProdutos()" style="background: #6c757d;">Mostrar Todos</button>
+                <button onclick="buscarProdutos()" class="btn-moderno">Buscar</button>
+                <button onclick="carregarProdutos()" class="btn-moderno" style="background: var(--gray);">Mostrar Todos</button>
             </div>
         </div>
 
@@ -315,17 +385,16 @@
         </div>
     </div>
 
-    <!-- Modal para ajustar estoque -->
     <div id="modalEstoque" class="modal">
         <div class="modal-content">
-            <h3>Ajustar Estoque</h3>
+            <h3 style="margin-bottom: 20px;">📦 Ajustar Estoque</h3>
             <div class="form-group">
                 <label>Produto</label>
-                <input type="text" id="modalProdutoNome" readonly>
+                <input type="text" id="modalProdutoNome" readonly style="background: #f5f5f5;">
             </div>
             <div class="form-group">
                 <label>Estoque Atual</label>
-                <input type="text" id="modalEstoqueAtual" readonly>
+                <input type="text" id="modalEstoqueAtual" readonly style="background: #f5f5f5;">
             </div>
             <div class="form-group">
                 <label>Quantidade</label>
@@ -339,14 +408,18 @@
                 </select>
             </div>
             <div style="display: flex; gap: 10px; margin-top: 20px;">
-                <button onclick="ajustarEstoque()">Aplicar</button>
-                <button onclick="fecharModal()" class="btn-danger">Cancelar</button>
+                <button onclick="ajustarEstoque()" class="btn-moderno">Aplicar</button>
+                <button onclick="fecharModal()" class="btn-moderno btn-danger">Cancelar</button>
             </div>
         </div>
     </div>
 
     <script>
         let produtoIdAtual = null;
+
+        function formatarMoeda(valor) {
+            return 'R$ ' + valor.toFixed(2).replace('.', ',');
+        }
 
         async function carregarProdutos() {
             try {
@@ -364,13 +437,13 @@
                     tbody.innerHTML = data.produtos.map(p => `
                         <tr>
                             <td>${p.codigo_barras || '-'}</td>
-                            <td>${p.nome}</td>
+                            <td><strong>${p.nome}</strong></td>
                             <td>${p.categoria || '-'}</td>
-                            <td>R$ ${parseFloat(p.preco_venda).toFixed(2)}</td>
-                            <td class="${p.estoque < p.estoque_minimo ? 'estoque-baixo' : 'estoque-normal'}">${p.estoque}</td>
-                            <td>${p.estoque < (p.estoque_minimo || 5) ? '⚠️ Estoque Baixo' : '✅ Normal'}</td>
+                            <td>${formatarMoeda(p.preco_venda)}</td>
+                            <td class="${p.estoque < 5 ? 'estoque-baixo' : 'estoque-normal'}">${p.estoque}</td>
+                            <td>${p.estoque < 5 ? '⚠️ Estoque Baixo' : '✅ Normal'}</td>
                             <td>
-                                <button onclick="abrirModalEstoque(${p.id}, '${p.nome}', ${p.estoque})" style="padding: 5px 10px; font-size: 12px;">📦 Ajustar</button>
+                                <button onclick="abrirModalEstoque(${p.id}, '${p.nome}', ${p.estoque})" style="padding: 5px 12px; background: var(--primary); color: white; border: none; border-radius: 8px; cursor: pointer;">📦 Ajustar</button>
                             </td>
                         </tr>
                     `).join('');
@@ -407,13 +480,13 @@
                     tbody.innerHTML = filtrados.map(p => `
                         <tr>
                             <td>${p.codigo_barras || '-'}</td>
-                            <td>${p.nome}</td>
+                            <td><strong>${p.nome}</strong></td>
                             <td>${p.categoria || '-'}</td>
-                            <td>R$ ${parseFloat(p.preco_venda).toFixed(2)}</td>
-                            <td class="${p.estoque < (p.estoque_minimo || 5) ? 'estoque-baixo' : 'estoque-normal'}">${p.estoque}</td>
-                            <td>${p.estoque < (p.estoque_minimo || 5) ? '⚠️ Estoque Baixo' : '✅ Normal'}</td>
+                            <td>${formatarMoeda(p.preco_venda)}</td>
+                            <td class="${p.estoque < 5 ? 'estoque-baixo' : 'estoque-normal'}">${p.estoque}</td>
+                            <td>${p.estoque < 5 ? '⚠️ Estoque Baixo' : '✅ Normal'}</td>
                             <td>
-                                <button onclick="abrirModalEstoque(${p.id}, '${p.nome}', ${p.estoque})" style="padding: 5px 10px; font-size: 12px;">📦 Ajustar</button>
+                                <button onclick="abrirModalEstoque(${p.id}, '${p.nome}', ${p.estoque})" style="padding: 5px 12px; background: var(--primary); color: white; border: none; border-radius: 8px; cursor: pointer;">📦 Ajustar</button>
                             </td>
                         </tr>
                     `).join('');
@@ -451,14 +524,14 @@
                 const data = await res.json();
                 
                 if (data.success) {
-                    alert('Estoque atualizado com sucesso!');
+                    alert('✅ Estoque atualizado com sucesso!');
                     fecharModal();
                     carregarProdutos();
                 } else {
                     alert(data.error || 'Erro ao atualizar estoque');
                 }
             } catch (err) {
-                alert('Erro ao conectar');
+                alert('❌ Erro ao conectar');
             }
         }
 
