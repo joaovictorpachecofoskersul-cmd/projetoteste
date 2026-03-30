@@ -1,506 +1,336 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fluxo de Caixa</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-        }
-        .container { max-width: 1200px; margin: 0 auto; }
-        .header {
-            background: white;
-            border-radius: 15px;
-            padding: 20px;
-            margin-bottom: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 10px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-        }
-        .header h1 { color: #333; font-size: 24px; }
-        .nav-buttons { display: flex; gap: 10px; flex-wrap: wrap; }
-        .nav-btn {
-            background: #667eea;
-            color: white;
-            padding: 10px 20px;
-            border-radius: 8px;
-            text-decoration: none;
-            display: inline-block;
-            transition: transform 0.2s;
-        }
-        .nav-btn:hover { transform: scale(1.05); }
-        .logout-btn {
-            background: #dc3545;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 8px;
-            cursor: pointer;
-        }
-        .cards {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 20px;
-            margin-bottom: 20px;
-        }
-        .card {
-            background: white;
-            border-radius: 15px;
-            padding: 20px;
-            text-align: center;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            transition: transform 0.2s;
-        }
-        .card:hover { transform: translateY(-5px); }
-        .card h3 { color: #666; font-size: 14px; margin-bottom: 10px; text-transform: uppercase; }
-        .valor { font-size: 32px; font-weight: bold; }
-        .positivo { color: #28a745; }
-        .negativo { color: #dc3545; }
-        .row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            margin-bottom: 20px;
-        }
-        .card-grafico, .card-lista {
-            background: white;
-            border-radius: 15px;
-            padding: 20px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-        }
-        .card-grafico h3, .card-lista h3 { margin-bottom: 15px; color: #333; border-left: 4px solid #667eea; padding-left: 15px; }
-        
-        /* Gráfico simples em CSS */
-        .grafico-simples {
-            padding: 20px;
-        }
-        .barra-container {
-            margin-bottom: 25px;
-        }
-        .barra-label {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 8px;
-            font-weight: bold;
-        }
-        .barra-label .entrada-label { color: #28a745; }
-        .barra-label .saida-label { color: #dc3545; }
-        .barra-fundo {
-            background: #e9ecef;
-            border-radius: 10px;
-            height: 35px;
-            overflow: hidden;
-        }
-        .barra {
-            height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: flex-end;
-            padding-right: 10px;
-            color: white;
-            font-weight: bold;
-            font-size: 14px;
-            transition: width 0.5s ease;
-        }
-        .barra-entrada {
-            background: linear-gradient(90deg, #28a745, #34ce57);
-            width: 0%;
-        }
-        .barra-saida {
-            background: linear-gradient(90deg, #dc3545, #ff6b6b);
-            width: 0%;
-        }
-        .doughnut {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 40px;
-            flex-wrap: wrap;
-            margin-top: 20px;
-        }
-        .doughnut-item {
-            text-align: center;
-        }
-        .doughnut-circle {
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            margin-bottom: 10px;
-            position: relative;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .entrada-circle {
-            background: conic-gradient(#28a745 0deg, #e9ecef 0deg);
-        }
-        .saida-circle {
-            background: conic-gradient(#dc3545 0deg, #e9ecef 0deg);
-        }
-        .circle-inner {
-            width: 70px;
-            height: 70px;
-            background: white;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            font-size: 18px;
-        }
-        .lista {
-            max-height: 300px;
-            overflow-y: auto;
-        }
-        .item-lista {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px;
-            border-bottom: 1px solid #eee;
-            transition: background 0.2s;
-        }
-        .item-lista:hover { background: #f8f9fa; }
-        .item-data { font-size: 12px; color: #888; min-width: 80px; }
-        .item-descricao { flex: 1; margin: 0 10px; }
-        .item-valor { font-weight: bold; }
-        .item-valor.entrada { color: #28a745; }
-        .item-valor.saida { color: #dc3545; }
-        .form-card {
-            background: white;
-            border-radius: 15px;
-            padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-        }
-        .form-group { margin-bottom: 15px; }
-        .form-group label { display: block; margin-bottom: 5px; color: #555; font-weight: 500; }
-        .form-group input, .form-group select {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            font-size: 14px;
-        }
-        .form-group input:focus, .form-group select:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-        button {
-            background: #28a745;
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 16px;
-            font-weight: bold;
-            transition: background 0.2s;
-        }
-        button:hover { background: #218838; }
-        .login-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-        }
-        .login-card {
-            background: white;
-            border-radius: 20px;
-            padding: 40px;
-            width: 350px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
-        }
-        .login-card h2 { text-align: center; margin-bottom: 20px; color: #333; }
-        .message { margin-top: 10px; padding: 10px; border-radius: 8px; text-align: center; }
-        .success { background: #d4edda; color: #155724; }
-        .error { background: #f8d7da; color: #721c24; }
-        @media (max-width: 768px) {
-            .cards, .row { grid-template-columns: 1fr; }
-            .doughnut { flex-direction: column; }
-        }
-    </style>
-</head>
-<body>
+const express = require("express");
+const path = require("path");
+const mysql = require("mysql2");
 
-<div id="loginScreen" class="login-container">
-    <div class="login-card">
-        <h2>💰 Fluxo de Caixa</h2>
-        <form id="loginForm">
-            <div class="form-group">
-                <label>Usuário</label>
-                <input type="text" id="username" value="admin">
-            </div>
-            <div class="form-group">
-                <label>Senha</label>
-                <input type="password" id="password" value="123">
-            </div>
-            <button type="submit">Entrar</button>
-        </form>
-        <div id="loginMessage" class="message"></div>
-    </div>
-</div>
+const app = express();
 
-<div id="mainScreen" style="display: none;">
-    <div class="container">
-        <div class="header">
-            <h1>💰 Fluxo de Caixa</h1>
-            <div class="nav-buttons">
-                <a href="/produtos" class="nav-btn">📦 Produtos</a>
-                <a href="/pdv" class="nav-btn">🛒 PDV</a>
-                <button class="logout-btn" onclick="logout()">Sair</button>
-            </div>
-        </div>
+// ========================
+// CONEXÃO MYSQL
+// ========================
+const db = mysql.createPool({
+  host: "auth-db1601.hstgr.io",
+  user: "u519611382_testefinal",
+  password: "21Joaovictor21",
+  database: "u519611382_testefinal",
+  waitForConnections: true,
+  connectionLimit: 10,
+  queueLimit: 0
+});
 
-        <div class="cards">
-            <div class="card">
-                <h3>SALDO ATUAL</h3>
-                <div class="valor" id="saldo">R$ 0,00</div>
-            </div>
-            <div class="card">
-                <h3>TOTAL ENTRADAS</h3>
-                <div class="valor positivo" id="totalEntradas">R$ 0,00</div>
-            </div>
-            <div class="card">
-                <h3>TOTAL SAÍDAS</h3>
-                <div class="valor negativo" id="totalSaidas">R$ 0,00</div>
-            </div>
-        </div>
+// Testar conexão
+db.getConnection((err, connection) => {
+  if (err) {
+    console.log("❌ ERRO:", err.message);
+  } else {
+    console.log("✅ CONECTADO!");
+    connection.release();
+  }
+});
 
-        <div class="row">
-            <div class="card-grafico">
-                <h3>📊 Gráfico de Movimentações</h3>
-                <div class="grafico-simples">
-                    <div class="barra-container">
-                        <div class="barra-label">
-                            <span class="entrada-label">💰 Entradas</span>
-                            <span id="percentEntradas">0%</span>
-                        </div>
-                        <div class="barra-fundo">
-                            <div class="barra barra-entrada" id="barraEntradas">R$ 0</div>
-                        </div>
-                    </div>
-                    <div class="barra-container">
-                        <div class="barra-label">
-                            <span class="saida-label">💸 Saídas</span>
-                            <span id="percentSaidas">0%</span>
-                        </div>
-                        <div class="barra-fundo">
-                            <div class="barra barra-saida" id="barraSaidas">R$ 0</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="card-lista">
-                <h3>📋 Últimas Movimentações</h3>
-                <div id="listaMovimentacoes" class="lista">Carregando...</div>
-            </div>
-        </div>
+// ========================
+// MIDDLEWARE
+// ========================
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(express.static(path.join(__dirname, "public")));
 
-        <div class="form-card">
-            <h3>📝 Nova Movimentação</h3>
-            <form id="formMovimentacao">
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-                    <div class="form-group">
-                        <label>Tipo</label>
-                        <select id="tipo" required>
-                            <option value="">Selecione</option>
-                            <option value="entrada">💰 Entrada</option>
-                            <option value="saida">💸 Saída</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Valor (R$)</label>
-                        <input type="number" id="valor" step="0.01" required>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label>Descrição</label>
-                    <input type="text" id="descricao" placeholder="Ex: Salário, Conta de luz...">
-                </div>
-                <button type="submit">Registrar</button>
-            </form>
-            <div id="msgMovimentacao" class="message"></div>
-        </div>
-    </div>
-</div>
+// ========================
+// ROTA PRINCIPAL
+// ========================
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "index.html"));
+});
 
-<script>
-function formatarMoeda(valor) {
-    return 'R$ ' + valor.toFixed(2).replace('.', ',');
-}
+// ========================
+// PÁGINAS
+// ========================
+app.get("/produtos", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "produtos.html"));
+});
 
-function atualizarGrafico(entradas, saidas) {
-    const total = entradas + saidas;
-    const percentEntradas = total > 0 ? (entradas / total * 100).toFixed(1) : 0;
-    const percentSaidas = total > 0 ? (saidas / total * 100).toFixed(1) : 0;
+app.get("/pdv", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "pdv.html"));
+});
+
+// ========================
+// TESTE BANCO
+// ========================
+app.get("/teste-db", (req, res) => {
+  db.query("SELECT * FROM users", (err, results) => {
+    if (err) return res.json({ error: err.message });
+    res.json({ success: true, users: results });
+  });
+});
+
+// ========================
+// LOGIN
+// ========================
+app.post("/api/login", (req, res) => {
+  const { user, pass } = req.body;
+  
+  db.query("SELECT * FROM users WHERE user = ?", [user], (err, results) => {
+    if (err) return res.json({ success: false, error: err.message });
+    if (results.length === 0) return res.json({ success: false, error: "Usuário não encontrado" });
+    if (results[0].pass !== pass) return res.json({ success: false, error: "Senha incorreta" });
     
-    const maxValor = Math.max(entradas, saidas, 1);
-    const larguraEntradas = (entradas / maxValor * 100).toFixed(1);
-    const larguraSaidas = (saidas / maxValor * 100).toFixed(1);
-    
-    document.getElementById('percentEntradas').textContent = percentEntradas + '%';
-    document.getElementById('percentSaidas').textContent = percentSaidas + '%';
-    
-    const barraEntradas = document.getElementById('barraEntradas');
-    const barraSaidas = document.getElementById('barraSaidas');
-    
-    barraEntradas.style.width = larguraEntradas + '%';
-    barraEntradas.textContent = formatarMoeda(entradas);
-    
-    barraSaidas.style.width = larguraSaidas + '%';
-    barraSaidas.textContent = formatarMoeda(saidas);
-}
+    res.json({ success: true, user: { id: results[0].id, user: results[0].user } });
+  });
+});
 
-async function carregarDados() {
-    try {
-        const res = await fetch('/api/saldo');
-        const data = await res.json();
-        
-        if (data.success) {
-            document.getElementById('saldo').innerHTML = formatarMoeda(data.saldo);
-            document.getElementById('totalEntradas').innerHTML = formatarMoeda(data.entradas);
-            document.getElementById('totalSaidas').innerHTML = formatarMoeda(data.saidas);
-            atualizarGrafico(data.entradas, data.saidas);
-        }
-    } catch (err) {
-        console.error('Erro:', err);
+// ========================
+// MOVIMENTAÇÕES
+// ========================
+app.post("/api/movimentacao", (req, res) => {
+  const { tipo, valor, descricao } = req.body;
+  
+  db.query("INSERT INTO movimentacoes (tipo, valor, descricao) VALUES (?, ?, ?)",
+    [tipo, valor, descricao],
+    (err) => {
+      if (err) return res.json({ success: false });
+      res.json({ success: true });
+    });
+});
+
+app.get("/api/movimentacoes", (req, res) => {
+  db.query("SELECT * FROM movimentacoes ORDER BY data DESC", (err, results) => {
+    if (err) return res.json([]);
+    res.json(results);
+  });
+});
+
+app.get("/api/saldo", (req, res) => {
+  db.query(`
+    SELECT 
+      SUM(CASE WHEN tipo = 'entrada' THEN valor ELSE 0 END) as entradas,
+      SUM(CASE WHEN tipo = 'saida' THEN valor ELSE 0 END) as saidas
+    FROM movimentacoes
+  `, (err, results) => {
+    if (err) return res.json({ error: err.message });
+    
+    const entradas = parseFloat(results[0].entradas) || 0;
+    const saidas = parseFloat(results[0].saidas) || 0;
+    
+    res.json({ 
+      success: true, 
+      saldo: entradas - saidas,
+      entradas, 
+      saidas 
+    });
+  });
+});
+
+// ========================
+// PRODUTOS
+// ========================
+app.get("/api/produtos", (req, res) => {
+    db.query("SELECT * FROM produtos WHERE ativo = true ORDER BY nome", (err, results) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ success: true, produtos: results });
+    });
+});
+
+app.get("/api/produtos/buscar/:codigo", (req, res) => {
+    const codigo = req.params.codigo;
+    db.query("SELECT * FROM produtos WHERE codigo_barras = ? AND ativo = true", [codigo], (err, results) => {
+        if (err) return res.status(500).json({ error: err.message });
+        if (results.length === 0) return res.json({ success: false, error: "Produto não encontrado" });
+        res.json({ success: true, produto: results[0] });
+    });
+});
+
+app.post("/api/produtos", (req, res) => {
+    const { codigo_barras, nome, descricao, preco_custo, preco_venda, estoque, categoria } = req.body;
+    
+    const sql = `INSERT INTO produtos (codigo_barras, nome, descricao, preco_custo, preco_venda, estoque, categoria) 
+                 VALUES (?, ?, ?, ?, ?, ?, ?)`;
+    
+    db.query(sql, [codigo_barras, nome, descricao, preco_custo, preco_venda, estoque, categoria], (err, result) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ success: true, id: result.insertId });
+    });
+});
+
+app.put("/api/produtos/:id/estoque", (req, res) => {
+    const { id } = req.params;
+    const { quantidade, operacao } = req.body;
+    
+    const sql = operacao === 'add' 
+        ? "UPDATE produtos SET estoque = estoque + ? WHERE id = ?"
+        : "UPDATE produtos SET estoque = estoque - ? WHERE id = ? AND estoque >= ?";
+    
+    db.query(sql, [quantidade, id, quantidade], (err, result) => {
+        if (err) return res.status(500).json({ error: err.message });
+        if (result.affectedRows === 0) return res.json({ success: false, error: "Estoque insuficiente" });
+        res.json({ success: true });
+    });
+});
+
+// ========================
+// VENDAS - COM REGISTRO NO FLUXO DE CAIXA E BAIXA DE ESTOQUE
+// ========================
+app.post("/api/venda-simples", (req, res) => {
+    console.log("📦 VENDA RECEBIDA");
+    console.log("Dados:", JSON.stringify(req.body, null, 2));
+    
+    const { itens, cliente_nome, forma_pagamento } = req.body;
+    
+    if (!itens || itens.length === 0) {
+        return res.status(400).json({ success: false, error: "Carrinho vazio" });
     }
-}
-
-async function carregarMovimentacoes() {
-    try {
-        const res = await fetch('/api/movimentacoes');
-        const data = await res.json();
-        
-        console.log('Dados recebidos:', data); // Para debug
-        
-        const lista = document.getElementById('listaMovimentacoes');
-        
-        // Verifica se veio no formato correto
-        let movimentacoes = [];
-        
-        if (Array.isArray(data)) {
-            movimentacoes = data;
-        } else if (data.success && Array.isArray(data.movimentacoes)) {
-            movimentacoes = data.movimentacoes;
-        } else if (data.movimentacoes && Array.isArray(data.movimentacoes)) {
-            movimentacoes = data.movimentacoes;
-        } else if (Array.isArray(data.results)) {
-            movimentacoes = data.results;
-        } else {
-            console.log('Formato não reconhecido:', data);
+    
+    // Calcular total
+    let total = 0;
+    itens.forEach(item => {
+        total += (item.preco_unitario || 0) * (item.quantidade || 0);
+    });
+    
+    console.log("Total:", total);
+    
+    // Inserir venda
+    const sqlVenda = `INSERT INTO vendas (usuario_id, cliente_nome, total, forma_pagamento) 
+                      VALUES (?, ?, ?, ?)`;
+    
+    db.query(sqlVenda, [1, cliente_nome || 'Cliente', total, forma_pagamento || 'dinheiro'], (err, result) => {
+        if (err) {
+            console.log("❌ Erro:", err.message);
+            return res.json({ success: false, error: err.message });
         }
         
-        if (movimentacoes.length === 0) {
-            lista.innerHTML = '<div style="text-align: center; padding: 20px; color: #888;">📭 Nenhuma movimentação registrada</div>';
+        const vendaId = result.insertId;
+        console.log("✅ Venda ID:", vendaId);
+        
+        // Inserir itens e DAR BAIXA NO ESTOQUE
+        let itensProcessados = 0;
+        
+        if (itens.length === 0) {
+            // Registrar no fluxo de caixa
+            const sqlMov = `INSERT INTO movimentacoes (tipo, valor, descricao) 
+                           VALUES ('entrada', ?, ?)`;
+            const descricaoMov = `Venda #${vendaId} - ${cliente_nome || 'Cliente'}`;
+            
+            db.query(sqlMov, [total, descricaoMov], (err) => {
+                if (err) console.log("❌ Erro fluxo caixa:", err.message);
+                else console.log(`✅ Entrada de R$ ${total} registrada no fluxo de caixa`);
+                res.json({ success: true, venda_id: vendaId, total: total });
+            });
             return;
         }
         
-        lista.innerHTML = movimentacoes.slice(0, 10).map(m => {
-            // Pega o valor, tratando diferentes formatos
-            let valor = m.valor || m.value || 0;
-            let tipo = m.tipo || m.type || '';
-            let descricao = m.descricao || m.description || m.desc || '-';
-            let dataMov = m.data || m.date || m.created_at || new Date();
-            
-            return `
-                <div class="item-lista">
-                    <div class="item-data">${new Date(dataMov).toLocaleDateString()}</div>
-                    <div class="item-descricao">${descricao}</div>
-                    <div class="item-valor ${tipo}">
-                        ${tipo === 'entrada' ? '+' : '-'} ${formatarMoeda(parseFloat(valor))}
-                    </div>
-                </div>
-            `;
-        }).join('');
-        
-    } catch (err) {
-        console.error('Erro ao carregar movimentações:', err);
-        document.getElementById('listaMovimentacoes').innerHTML = '<div style="text-align: center; padding: 20px; color: #dc3545;">❌ Erro ao carregar movimentações</div>';
-    }
-}
-
-// Login
-document.getElementById('loginForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    
-    const user = document.getElementById('username').value;
-    const pass = document.getElementById('password').value;
-    
-    try {
-        const res = await fetch('/api/login', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ user, pass })
+        itens.forEach((item, index) => {
+            // Primeiro, verificar estoque
+            db.query("SELECT estoque FROM produtos WHERE id = ?", [item.produto_id], (err, results) => {
+                if (err) {
+                    console.log("❌ Erro ao verificar estoque:", err.message);
+                    itensProcessados++;
+                    return;
+                }
+                
+                const estoqueAtual = results[0]?.estoque || 0;
+                
+                if (estoqueAtual < item.quantidade) {
+                    console.log(`❌ Estoque insuficiente para produto ID ${item.produto_id}. Disponível: ${estoqueAtual}, Solicitado: ${item.quantidade}`);
+                    itensProcessados++;
+                    return;
+                }
+                
+                // Inserir item da venda
+                const sqlItem = `INSERT INTO venda_itens (venda_id, produto_id, quantidade, preco_unitario, subtotal) 
+                                VALUES (?, ?, ?, ?, ?)`;
+                
+                const subtotal = (item.preco_unitario || 0) * (item.quantidade || 0);
+                
+                db.query(sqlItem, [vendaId, item.produto_id, item.quantidade, item.preco_unitario, subtotal], (err) => {
+                    if (err) {
+                        console.log("❌ Erro ao inserir item:", err.message);
+                        itensProcessados++;
+                        return;
+                    }
+                    
+                    console.log(`✅ Item ${index + 1} inserido: ${item.quantidade}x do produto ID ${item.produto_id}`);
+                    
+                    // DAR BAIXA NO ESTOQUE
+                    const sqlEstoque = "UPDATE produtos SET estoque = estoque - ? WHERE id = ?";
+                    db.query(sqlEstoque, [item.quantidade, item.produto_id], (err) => {
+                        if (err) {
+                            console.log("❌ Erro ao dar baixa no estoque:", err.message);
+                        } else {
+                            console.log(`✅ Estoque atualizado: -${item.quantidade} do produto ID ${item.produto_id}`);
+                        }
+                        
+                        itensProcessados++;
+                        
+                        if (itensProcessados === itens.length) {
+                            // REGISTRAR NO FLUXO DE CAIXA
+                            const sqlMov = `INSERT INTO movimentacoes (tipo, valor, descricao) 
+                                           VALUES ('entrada', ?, ?)`;
+                            const descricaoMov = `Venda #${vendaId} - ${cliente_nome || 'Cliente'} - ${itens.length} itens`;
+                            
+                            db.query(sqlMov, [total, descricaoMov], (err) => {
+                                if (err) {
+                                    console.log("❌ Erro fluxo caixa:", err.message);
+                                } else {
+                                    console.log(`✅ Entrada de R$ ${total} registrada no fluxo de caixa`);
+                                }
+                                
+                                res.json({ success: true, venda_id: vendaId, total: total });
+                            });
+                        }
+                    });
+                });
+            });
         });
-        
-        const data = await res.json();
-        
-        if (data.success) {
-            document.getElementById('loginScreen').style.display = 'none';
-            document.getElementById('mainScreen').style.display = 'block';
-            await carregarDados();
-            await carregarMovimentacoes();
-        } else {
-            document.getElementById('loginMessage').innerHTML = '❌ ' + (data.error || 'Login inválido');
-            document.getElementById('loginMessage').className = 'message error';
-        }
-    } catch (err) {
-        document.getElementById('loginMessage').innerHTML = '❌ Erro ao conectar';
-        document.getElementById('loginMessage').className = 'message error';
-    }
+    });
 });
 
-// Registrar movimentação
-document.getElementById('formMovimentacao').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    
-    const tipo = document.getElementById('tipo').value;
-    const valor = parseFloat(document.getElementById('valor').value);
-    const descricao = document.getElementById('descricao').value;
-    
-    if (!tipo || !valor) {
-        alert('Preencha todos os campos');
-        return;
-    }
-    
-    try {
-        const res = await fetch('/api/movimentacao', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ tipo, valor, descricao })
-        });
-        
-        const data = await res.json();
-        
-        if (data.success) {
-            document.getElementById('formMovimentacao').reset();
-            await carregarDados();
-            await carregarMovimentacoes();
-            const msg = document.getElementById('msgMovimentacao');
-            msg.innerHTML = '✅ Movimentação registrada!';
-            msg.className = 'message success';
-            setTimeout(() => { msg.innerHTML = ''; }, 3000);
-        } else {
-            alert('Erro ao registrar');
-        }
-    } catch (err) {
-        alert('Erro ao conectar');
-    }
+// ========================
+// RELATÓRIOS
+// ========================
+app.get("/api/vendas", (req, res) => {
+    const sql = `SELECT * FROM vendas ORDER BY data DESC LIMIT 50`;
+    db.query(sql, (err, results) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ success: true, vendas: results });
+    });
 });
 
-function logout() {
-    location.reload();
-}
-</script>
-</body>
-</html>
+app.get("/api/vendas/:id", (req, res) => {
+    const { id } = req.params;
+    
+    const sqlVenda = "SELECT * FROM vendas WHERE id = ?";
+    const sqlItens = `SELECT vi.*, p.nome FROM venda_itens vi JOIN produtos p ON vi.produto_id = p.id WHERE vi.venda_id = ?`;
+    
+    db.query(sqlVenda, [id], (err, venda) => {
+        if (err) return res.status(500).json({ error: err.message });
+        if (venda.length === 0) return res.json({ success: false, error: "Venda não encontrada" });
+        
+        db.query(sqlItens, [id], (err, itens) => {
+            if (err) return res.status(500).json({ error: err.message });
+            res.json({ success: true, venda: venda[0], itens });
+        });
+    });
+});
+
+// ========================
+// ROTA DE TESTE
+// ========================
+app.post("/api/teste", (req, res) => {
+    console.log("✅ TESTE RECEBIDO!");
+    console.log("Dados:", req.body);
+    res.json({ success: true, message: "Servidor funcionando!" });
+});
+
+// ========================
+// INICIAR SERVIDOR
+// ========================
+const PORT = 3000;
+
+app.listen(PORT, () => {
+  console.log("=".repeat(50));
+  console.log("🚀 SERVIDOR RODANDO");
+  console.log("=".repeat(50));
+  console.log(`📡 Porta: ${PORT}`);
+  console.log(`🌐 http://localhost:${PORT}`);
+  console.log(`📊 Banco: u519611382_testefinal`);
+  console.log(`👤 Login: admin / 123`);
+  console.log("=".repeat(50));
+});
