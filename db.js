@@ -2,9 +2,9 @@ const mysql = require("mysql2");
 
 const db = mysql.createPool({
   host: "auth-db1601.hstgr.io",
-  user: "u519611382_fluxo_admin",
+  user: "u51961382_fluxo_admin",
   password: "A123456Senha@",
-  database: "u519611382_fluxo_caixa_si",
+  database: "u51961382_fluxo_caixa_si",
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0
@@ -15,7 +15,6 @@ db.getConnection((err, connection) => {
     console.error("❌ ERRO:", err.message);
   } else {
     console.log("✅ CONECTADO!");
-    console.log("📊 Banco: u519611382_fluxo_caixa_si");
     connection.release();
   }
 });
