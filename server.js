@@ -5,12 +5,12 @@ const mysql = require("mysql2");
 const app = express();
 
 // ========================
-// CONEXÃO MYSQL - CONFIGURAÇÃO CORRETA
+// CONEXÃO MYSQL - NOVA SENHA
 // ========================
 const db = mysql.createPool({
   host: "auth-db1601.hstgr.io",
   user: "u519611382_8uP59",
-  password: "21@Elesig",
+  password: "21@Joao21",           // ← NOVA SENHA
   database: "u519611382_T9bc4",
   waitForConnections: true,
   connectionLimit: 10,
@@ -54,8 +54,7 @@ app.get("/teste-db", (req, res) => {
     res.json({ 
       success: true, 
       users: results, 
-      total: results.length,
-      message: "Banco conectado!"
+      total: results.length
     });
   });
 });
@@ -83,7 +82,7 @@ app.post("/api/login", (req, res) => {
       return res.status(500).json({ success: false, error: "Erro no banco: " + err.message });
     }
 
-    console.log("📊 Resultados encontrados:", results.length);
+    console.log("📊 Resultados:", results.length);
 
     if (results.length === 0) {
       return res.json({ success: false, error: "Usuário não encontrado" });
@@ -117,7 +116,7 @@ app.post("/api/movimentacao", (req, res) => {
   
   db.query(sql, [tipo, valor, descricao || null], (err, result) => {
     if (err) {
-      console.log("❌ Erro ao inserir:", err);
+      console.log("❌ Erro:", err);
       return res.json({ success: false, error: err.message });
     }
     console.log("✅ Movimentação salva - ID:", result.insertId);
@@ -178,7 +177,7 @@ app.listen(PORT, "0.0.0.0", () => {
   console.log(`📡 Porta: ${PORT}`);
   console.log(`🌐 Acesse: http://localhost:${PORT}`);
   console.log(`📊 Banco: u519611382_T9bc4`);
-  console.log(`👤 Usuário: admin`);
-  console.log(`🔑 Senha: 123`);
+  console.log(`👤 Usuário sistema: admin`);
+  console.log(`🔑 Senha sistema: 123`);
   console.log("=".repeat(50));
 });
