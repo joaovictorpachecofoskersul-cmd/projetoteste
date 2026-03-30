@@ -5,23 +5,33 @@ const mysql = require("mysql2");
 const app = express();
 
 // ========================
-// CONEXÃO MYSQL HOSTINGER (CORRIGIDA)
+// CONEXÃO MYSQL HOSTINGER (COM DEBUG)
 // ========================
+console.log("🔧 Tentando conectar ao MySQL...");
+console.log("📊 Configurações:");
+console.log("   Host:", "auth-db1601.hstgr.io");
+console.log("   User:", "u519611382_8uP59");
+console.log("   Database:", "u519611382_7Pbcd4");
+
 const db = mysql.createPool({
   host: "auth-db1601.hstgr.io",
   user: "u519611382_8uP59",
   password: "21@Elesig",
-  database: "u519611382_7Pbcd4",  // ← NOME CORRETO DO BANCO!
+  database: "u519611382_7Pbcd4",
   waitForConnections: true,
   connectionLimit: 10,
-  queueLimit: 0
+  queueLimit: 0,
+  // Adicionar timeout para debug
+  connectTimeout: 10000
 });
 
-// Testar conexão com o banco
+// Testar conexão com mais detalhes
 db.getConnection((err, connection) => {
   if (err) {
-    console.log("❌ Erro ao conectar no MySQL:", err.message);
-    console.log("Detalhes do erro:", err);
+    console.log("❌ ERRO DETALHADO AO CONECTAR:");
+    console.log("   Código:", err.code);
+    console.log("   Mensagem:", err.message);
+    console.log("   Erro completo:", err);
   } else {
     console.log("✅ Conectado ao MySQL com sucesso!");
     console.log("📊 Banco de dados: u519611382_7Pbcd4");
