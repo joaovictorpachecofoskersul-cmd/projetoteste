@@ -381,26 +381,51 @@ async function carregarMovimentacoes() {
         const res = await fetch('/api/movimentacoes');
         const data = await res.json();
         
-        if (data.success && data.movimentacoes) {
-            const lista = document.getElementById('listaMovimentacoes');
+        console.log('Dados recebidos:', data); // Para debug
+        
+        const lista = document.getElementById('listaMovimentacoes');
+        
+        // Verifica se veio no formato correto
+        let movimentacoes = [];
+        
+        if (Array.isArray(data)) {
+            movimentacoes = data;
+        } else if (data.success && Array.isArray(data.movimentacoes)) {
+            movimentacoes = data.movimentacoes;
+        } else if (data.movimentacoes && Array.isArray(data.movimentacoes)) {
+            movimentacoes = data.movimentacoes;
+        } else if (Array.isArray(data.results)) {
+            movimentacoes = data.results;
+        } else {
+            console.log('Formato não reconhecido:', data);
+        }
+        
+        if (movimentacoes.length === 0) {
+            lista.innerHTML = '<div style="text-align: center; padding: 20px; color: #888;">📭 Nenhuma movimentação registrada</div>';
+            return;
+        }
+        
+        lista.innerHTML = movimentacoes.slice(0, 10).map(m => {
+            // Pega o valor, tratando diferentes formatos
+            let valor = m.valor || m.value || 0;
+            let tipo = m.tipo || m.type || '';
+            let descricao = m.descricao || m.description || m.desc || '-';
+            let dataMov = m.data || m.date || m.created_at || new Date();
             
-            if (data.movimentacoes.length === 0) {
-                lista.innerHTML = '<div style="text-align: center; color: #888;">Nenhuma movimentação</div>';
-                return;
-            }
-            
-            lista.innerHTML = data.movimentacoes.slice(0, 10).map(m => `
+            return `
                 <div class="item-lista">
-                    <div class="item-data">${new Date(m.data).toLocaleDateString()}</div>
-                    <div class="item-descricao">${m.descricao || '-'}</div>
-                    <div class="item-valor ${m.tipo}">
-                        ${m.tipo === 'entrada' ? '+' : '-'} ${formatarMoeda(m.valor)}
+                    <div class="item-data">${new Date(dataMov).toLocaleDateString()}</div>
+                    <div class="item-descricao">${descricao}</div>
+                    <div class="item-valor ${tipo}">
+                        ${tipo === 'entrada' ? '+' : '-'} ${formatarMoeda(parseFloat(valor))}
                     </div>
                 </div>
-            `).join('');
-        }
+            `;
+        }).join('');
+        
     } catch (err) {
-        console.error('Erro:', err);
+        console.error('Erro ao carregar movimentações:', err);
+        document.getElementById('listaMovimentacoes').innerHTML = '<div style="text-align: center; padding: 20px; color: #dc3545;">❌ Erro ao carregar movimentações</div>';
     }
 }
 
