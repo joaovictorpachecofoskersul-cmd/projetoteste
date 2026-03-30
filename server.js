@@ -5,13 +5,13 @@ const mysql = require("mysql2");
 const app = express();
 
 // ========================
-// CONEXÃO MYSQL - CREDENCIAIS CORRETAS
+// CONEXÃO MYSQL - CONFIGURAÇÃO CORRETA
 // ========================
 const db = mysql.createPool({
   host: "auth-db1601.hstgr.io",
   user: "u519611382_8uP59",
-  password: "21@Elesig",  // ou a senha que você redefinir
-  database: "u519611382_T9bc4",  // ← SÓ ESTE BANCO
+  password: "21@Elesig",
+  database: "u519611382_T9bc4",
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0
@@ -21,11 +21,9 @@ const db = mysql.createPool({
 db.getConnection((err, connection) => {
   if (err) {
     console.log("❌ Erro ao conectar:", err.message);
-    console.log("Código:", err.code);
   } else {
     console.log("✅ Conectado ao MySQL com sucesso!");
-    console.log("📊 Banco:", "u51961382_T9bc4");
-    console.log("👤 Usuário:", "u51961382_SuPS9");
+    console.log("📊 Banco:", "u519611382_T9bc4");
     connection.release();
   }
 });
@@ -45,65 +43,19 @@ app.get("/", (req, res) => {
 });
 
 // ========================
-// SETUP - CRIAR TABELAS
-// ========================
-app.get("/setup", (req, res) => {
-  const createUsers = `
-    CREATE TABLE IF NOT EXISTS users (
-      id INT AUTO_INCREMENT PRIMARY KEY,
-      user VARCHAR(100) NOT NULL UNIQUE,
-      pass VARCHAR(255) NOT NULL,
-      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    )
-  `;
-  
-  const createMovimentacoes = `
-    CREATE TABLE IF NOT EXISTS movimentacoes (
-      id INT AUTO_INCREMENT PRIMARY KEY,
-      tipo VARCHAR(20) NOT NULL,
-      valor DECIMAL(10,2) NOT NULL,
-      descricao TEXT,
-      data TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    )
-  `;
-  
-  const insertAdmin = `
-    INSERT IGNORE INTO users (user, pass) VALUES ('admin', '123')
-  `;
-  
-  db.query(createUsers, (err) => {
-    if (err) return res.json({ error: "Erro ao criar users", details: err.message });
-    
-    db.query(createMovimentacoes, (err) => {
-      if (err) return res.json({ error: "Erro ao criar movimentacoes", details: err.message });
-      
-      db.query(insertAdmin, (err) => {
-        if (err) return res.json({ error: "Erro ao inserir admin", details: err.message });
-        
-        res.json({ 
-          success: true, 
-          message: "✅ Tabelas criadas e usuário admin adicionado!",
-          login: "admin / 123"
-        });
-      });
-    });
-  });
-});
-
-// ========================
 // TESTE DO BANCO
 // ========================
 app.get("/teste-db", (req, res) => {
-  db.query("SELECT * FROM users", (err, results) => {
+  db.query("SELECT id, user, created_at FROM users", (err, results) => {
     if (err) {
-      console.log("Erro no teste-db:", err);
-      return res.json({ error: err.message, code: err.code });
+      console.log("Erro:", err);
+      return res.json({ error: err.message });
     }
     res.json({ 
       success: true, 
       users: results, 
       total: results.length,
-      message: "Banco conectado com sucesso!"
+      message: "Banco conectado!"
     });
   });
 });
@@ -221,11 +173,12 @@ const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, "0.0.0.0", () => {
   console.log("=".repeat(50));
-  console.log("🚀 SERVIDOR FLUXO DE CAIXA");
+  console.log("🚀 FLUXO DE CAIXA - SERVIDOR RODANDO");
   console.log("=".repeat(50));
   console.log(`📡 Porta: ${PORT}`);
-  console.log(`🌐 Local: http://localhost:${PORT}`);
-  console.log(`📊 Banco: u51961382_T9bc4`);
-  console.log(`👤 Usuário: u51961382_SuPS9`);
+  console.log(`🌐 Acesse: http://localhost:${PORT}`);
+  console.log(`📊 Banco: u519611382_T9bc4`);
+  console.log(`👤 Usuário: admin`);
+  console.log(`🔑 Senha: 123`);
   console.log("=".repeat(50));
 });
