@@ -16,7 +16,6 @@ db.getConnection((err, connection) => {
   } else {
     console.log("✅ CONECTADO COM SUCESSO AO MYSQL!");
     console.log("📊 Banco:", "u519611382_fluxo_caixa_si");
-    console.log("👤 Usuário:", "u519611382_fluxo_admin");
     connection.release();
   }
 });
