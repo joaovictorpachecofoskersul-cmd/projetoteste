@@ -5,13 +5,13 @@ const mysql = require("mysql2");
 const app = express();
 
 // ========================
-// CONEXÃO MYSQL - NOVA SENHA
+// CONEXÃO MYSQL - CREDENCIAIS CORRETAS
 // ========================
 const db = mysql.createPool({
   host: "auth-db1601.hstgr.io",
-  user: "u519611382_8uP59",
-  password: "21@Joao21",           // ← NOVA SENHA
-  database: "u519611382_T9bc4",
+  user: "u519611382_SuP59",        // ← USUÁRIO CORRETO
+  password: "21@Joao21",            // ← SENHA QUE VOCÊ DEFINIU
+  database: "u519611382_1T9bc4",    // ← BANCO CORRETO
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0
@@ -21,9 +21,11 @@ const db = mysql.createPool({
 db.getConnection((err, connection) => {
   if (err) {
     console.log("❌ Erro ao conectar:", err.message);
+    console.log("Usuário:", "u519611382_SuP59");
+    console.log("Banco:", "u519611382_1T9bc4");
   } else {
     console.log("✅ Conectado ao MySQL com sucesso!");
-    console.log("📊 Banco:", "u519611382_T9bc4");
+    console.log("📊 Banco:", "u519611382_1T9bc4");
     connection.release();
   }
 });
@@ -176,7 +178,7 @@ app.listen(PORT, "0.0.0.0", () => {
   console.log("=".repeat(50));
   console.log(`📡 Porta: ${PORT}`);
   console.log(`🌐 Acesse: http://localhost:${PORT}`);
-  console.log(`📊 Banco: u519611382_T9bc4`);
+  console.log(`📊 Banco: u519611382_1T9bc4`);
   console.log(`👤 Usuário sistema: admin`);
   console.log(`🔑 Senha sistema: 123`);
   console.log("=".repeat(50));
