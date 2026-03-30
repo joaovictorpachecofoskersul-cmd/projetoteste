@@ -2,9 +2,25 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>PDV - Ponto de Venda</title>
     <style>
+        :root {
+            --primary: #4361ee;
+            --primary-dark: #3a56d4;
+            --secondary: #7209b7;
+            --success: #06d6a0;
+            --danger: #ef476f;
+            --warning: #ffd166;
+            --dark: #2b2d42;
+            --light: #f8f9fa;
+            --gray: #6c757d;
+            --white: #ffffff;
+            --shadow: 0 10px 30px rgba(0,0,0,0.1);
+            --shadow-hover: 0 15px 40px rgba(0,0,0,0.15);
+            --transition: all 0.3s ease;
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -13,7 +29,7 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
             min-height: 100vh;
             padding: 20px;
         }
@@ -24,90 +40,140 @@
         }
 
         .header {
-            background: white;
-            border-radius: 15px;
-            padding: 20px 30px;
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 15px 25px;
             margin-bottom: 30px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            flex-wrap: wrap;
+            gap: 15px;
+            box-shadow: var(--shadow);
         }
 
-        .header h1 {
-            color: #333;
-            font-size: 28px;
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: white;
+        }
+
+        .logo h1 {
+            font-size: 24px;
+            color: var(--dark);
+        }
+
+        .logo p {
+            font-size: 12px;
+            color: var(--gray);
         }
 
         .nav-buttons {
             display: flex;
-            gap: 15px;
+            gap: 12px;
+            flex-wrap: wrap;
         }
 
         .nav-btn {
-            background: #667eea;
-            color: white;
-            border: none;
+            background: var(--light);
+            color: var(--dark);
             padding: 10px 20px;
-            border-radius: 8px;
-            cursor: pointer;
+            border-radius: 12px;
             text-decoration: none;
-            display: inline-block;
+            font-weight: 500;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-btn:hover {
+            background: var(--primary);
+            color: white;
+            transform: translateY(-2px);
         }
 
         .logout-btn {
-            background: #dc3545;
+            background: var(--danger);
             color: white;
             border: none;
-            padding: 10px 25px;
-            border-radius: 8px;
+            padding: 10px 20px;
+            border-radius: 12px;
             cursor: pointer;
+            font-weight: 500;
+            transition: var(--transition);
         }
 
         .pdv-container {
             display: grid;
-            grid-template-columns: 1fr 400px;
+            grid-template-columns: 1fr 450px;
             gap: 25px;
         }
 
-        .carrinho {
-            background: white;
-            border-radius: 15px;
-            padding: 20px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        @media (max-width: 768px) {
+            .pdv-container {
+                grid-template-columns: 1fr;
+            }
+            .header {
+                flex-direction: column;
+                text-align: center;
+            }
+            .nav-buttons {
+                justify-content: center;
+            }
         }
 
-        .produtos {
-            background: white;
-            border-radius: 15px;
-            padding: 20px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        .card {
+            background: var(--white);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: var(--shadow);
         }
 
-        .busca-produto {
+        .card h2 {
             margin-bottom: 20px;
+            color: var(--dark);
+            font-size: 20px;
+            border-left: 4px solid var(--primary);
+            padding-left: 15px;
         }
 
         .busca-produto input {
             width: 100%;
             padding: 15px;
             font-size: 18px;
-            border: 2px solid #ddd;
-            border-radius: 10px;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
             text-align: center;
+            transition: var(--transition);
         }
 
         .busca-produto input:focus {
             outline: none;
-            border-color: #667eea;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.1);
         }
 
         .info-produto {
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 10px;
-            margin-top: 15px;
+            background: var(--light);
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 20px;
             display: none;
+            animation: fadeIn 0.3s ease;
         }
 
         .info-produto.ativo {
@@ -115,21 +181,21 @@
         }
 
         .nome-produto {
-            font-size: 20px;
+            font-size: 22px;
             font-weight: bold;
-            color: #333;
+            color: var(--dark);
         }
 
         .preco-produto {
-            font-size: 24px;
-            color: #28a745;
+            font-size: 32px;
+            color: var(--success);
             font-weight: bold;
             margin: 10px 0;
         }
 
         .estoque {
-            color: #666;
-            font-size: 14px;
+            color: var(--gray);
+            margin-bottom: 15px;
         }
 
         .quantidade {
@@ -142,25 +208,33 @@
             flex: 1;
             padding: 12px;
             font-size: 16px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
             text-align: center;
         }
 
         .btn-adicionar {
-            background: #28a745;
+            background: linear-gradient(135deg, var(--success), #2ecc71);
             color: white;
             border: none;
-            padding: 12px 20px;
-            border-radius: 8px;
+            padding: 12px;
+            border-radius: 12px;
             cursor: pointer;
             font-size: 16px;
+            font-weight: bold;
             width: 100%;
+            transition: var(--transition);
+        }
+
+        .btn-adicionar:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
         }
 
         .tabela-carrinho {
             width: 100%;
             margin: 20px 0;
+            overflow-x: auto;
         }
 
         .tabela-carrinho table {
@@ -168,56 +242,86 @@
             border-collapse: collapse;
         }
 
-        .tabela-carrinho th, .tabela-carrinho td {
-            padding: 10px;
+        .tabela-carrinho th,
+        .tabela-carrinho td {
+            padding: 12px;
             text-align: left;
-            border-bottom: 1px solid #ddd;
+            border-bottom: 1px solid #eee;
         }
 
         .tabela-carrinho th {
-            background: #f8f9fa;
+            background: var(--light);
+            font-weight: bold;
         }
 
         .total {
             text-align: right;
             padding: 15px;
-            background: #f8f9fa;
-            border-radius: 10px;
-            margin-top: 20px;
+            background: var(--light);
+            border-radius: 12px;
+            margin: 20px 0;
         }
 
         .total span {
-            font-size: 24px;
+            font-size: 28px;
             font-weight: bold;
-            color: #28a745;
+            color: var(--success);
         }
 
         .finalizar {
-            background: #28a745;
+            background: linear-gradient(135deg, var(--success), #2ecc71);
             color: white;
             border: none;
             padding: 15px;
-            border-radius: 8px;
+            border-radius: 12px;
             cursor: pointer;
             font-size: 18px;
+            font-weight: bold;
             width: 100%;
             margin-top: 15px;
+            transition: var(--transition);
+        }
+
+        .finalizar:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
         }
 
         .remover-item {
-            background: #dc3545;
+            background: var(--danger);
             color: white;
             border: none;
-            padding: 5px 10px;
-            border-radius: 5px;
+            padding: 5px 12px;
+            border-radius: 8px;
             cursor: pointer;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--dark);
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            font-size: 14px;
         }
 
         .mensagem {
             margin-top: 15px;
-            padding: 10px;
-            border-radius: 8px;
+            padding: 12px;
+            border-radius: 12px;
             text-align: center;
+            animation: fadeIn 0.3s ease;
         }
 
         .mensagem.sucesso {
@@ -230,17 +334,22 @@
             color: #721c24;
         }
 
-        @media (max-width: 768px) {
-            .pdv-container {
-                grid-template-columns: 1fr;
-            }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>🛒 PDV - Ponto de Venda</h1>
+            <div class="logo">
+                <div class="logo-icon">🛒</div>
+                <div>
+                    <h1>Ponto de Venda</h1>
+                    <p>Sistema rápido e eficiente</p>
+                </div>
+            </div>
             <div class="nav-buttons">
                 <a href="/" class="nav-btn">💰 Fluxo de Caixa</a>
                 <a href="/produtos" class="nav-btn">📦 Produtos</a>
@@ -249,8 +358,7 @@
         </div>
 
         <div class="pdv-container">
-            <!-- Leitor de código de barras -->
-            <div class="produtos">
+            <div class="card">
                 <div class="busca-produto">
                     <input type="text" id="codigoBarras" placeholder="🔍 Leia o código de barras ou digite aqui" autofocus>
                 </div>
@@ -266,25 +374,16 @@
                 </div>
             </div>
 
-            <!-- Carrinho de compras -->
-            <div class="carrinho">
+            <div class="card">
                 <h2>🛒 Carrinho de Compras</h2>
                 
                 <div class="tabela-carrinho">
                     <table>
                         <thead>
-                            <tr>
-                                <th>Produto</th>
-                                <th>Qtd</th>
-                                <th>Preço</th>
-                                <th>Subtotal</th>
-                                <th></th>
-                            </tr>
+                            <tr><th>Produto</th><th>Qtd</th><th>Preço</th><th>Subtotal</th><th></th></tr>
                         </thead>
                         <tbody id="carrinhoItens">
-                            <tr>
-                                <td colspan="5" style="text-align: center;">Carrinho vazio</td>
-                            </tr>
+                            <tr><td colspan="5" style="text-align: center; padding: 40px;">🛍️ Carrinho vazio</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -294,13 +393,13 @@
                 </div>
 
                 <div class="form-group">
-                    <label>Cliente:</label>
-                    <input type="text" id="clienteNome" placeholder="Nome do cliente (opcional)" style="width: 100%; padding: 10px; margin: 10px 0;">
+                    <label>👤 Cliente:</label>
+                    <input type="text" id="clienteNome" placeholder="Nome do cliente (opcional)">
                 </div>
 
                 <div class="form-group">
-                    <label>Forma de Pagamento:</label>
-                    <select id="formaPagamento" style="width: 100%; padding: 10px;">
+                    <label>💳 Forma de Pagamento:</label>
+                    <select id="formaPagamento">
                         <option value="dinheiro">💰 Dinheiro</option>
                         <option value="cartao_credito">💳 Cartão de Crédito</option>
                         <option value="cartao_debito">💳 Cartão de Débito</option>
@@ -318,13 +417,10 @@
         let carrinho = [];
         let produtoAtual = null;
 
-        // Buscar produto por código de barras
         document.getElementById('codigoBarras').addEventListener('keypress', async (e) => {
             if (e.key === 'Enter') {
                 const codigo = e.target.value.trim();
-                if (codigo) {
-                    await buscarProduto(codigo);
-                }
+                if (codigo) await buscarProduto(codigo);
                 e.target.value = '';
             }
         });
@@ -336,18 +432,20 @@
                 
                 if (data.success) {
                     produtoAtual = data.produto;
-                    document.getElementById('infoProduto').classList.add('ativo');
+                    const info = document.getElementById('infoProduto');
+                    info.classList.add('ativo');
                     document.getElementById('produtoNome').textContent = produtoAtual.nome;
                     document.getElementById('produtoPreco').textContent = `R$ ${parseFloat(produtoAtual.preco_venda).toFixed(2)}`;
-                    document.getElementById('produtoEstoque').textContent = `Estoque: ${produtoAtual.estoque}`;
+                    document.getElementById('produtoEstoque').textContent = `Estoque: ${produtoAtual.estoque} unidades`;
                     document.getElementById('quantidade').value = 1;
                     document.getElementById('quantidade').focus();
                 } else {
-                    alert('Produto não encontrado!');
+                    mostrarMensagem('❌ Produto não encontrado!', 'erro');
                     document.getElementById('infoProduto').classList.remove('ativo');
+                    produtoAtual = null;
                 }
             } catch (err) {
-                alert('Erro ao buscar produto');
+                mostrarMensagem('❌ Erro ao buscar produto', 'erro');
             }
         }
 
@@ -355,17 +453,16 @@
             if (!produtoAtual) return;
             
             const quantidade = parseInt(document.getElementById('quantidade').value);
-            
+            if (quantidade <= 0) return;
             if (quantidade > produtoAtual.estoque) {
-                alert(`Estoque insuficiente! Disponível: ${produtoAtual.estoque}`);
+                mostrarMensagem(`⚠️ Estoque insuficiente! Disponível: ${produtoAtual.estoque}`, 'erro');
                 return;
             }
             
-            const itemExistente = carrinho.find(item => item.id === produtoAtual.id);
-            
-            if (itemExistente) {
-                itemExistente.quantidade += quantidade;
-                itemExistente.subtotal = itemExistente.quantidade * itemExistente.preco_unitario;
+            const existente = carrinho.find(item => item.id === produtoAtual.id);
+            if (existente) {
+                existente.quantidade += quantidade;
+                existente.subtotal = existente.quantidade * existente.preco_unitario;
             } else {
                 carrinho.push({
                     id: produtoAtual.id,
@@ -377,8 +474,7 @@
             }
             
             atualizarCarrinho();
-            
-            // Limpar e focar novamente na leitura
+            mostrarMensagem(`✅ ${produtoAtual.nome} adicionado!`, 'sucesso');
             document.getElementById('codigoBarras').value = '';
             document.getElementById('infoProduto').classList.remove('ativo');
             document.getElementById('codigoBarras').focus();
@@ -386,27 +482,29 @@
         }
 
         function removerDoCarrinho(index) {
+            const removido = carrinho[index].nome;
             carrinho.splice(index, 1);
             atualizarCarrinho();
+            mostrarMensagem(`🗑️ ${removido} removido`, 'sucesso');
         }
 
         function atualizarCarrinho() {
             const tbody = document.getElementById('carrinhoItens');
-            const total = carrinho.reduce((sum, item) => sum + item.subtotal, 0);
+            const total = carrinho.reduce((s, i) => s + i.subtotal, 0);
             
             if (carrinho.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center;">Carrinho vazio</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 40px;">🛍️ Carrinho vazio</td></tr>';
                 document.getElementById('totalCarrinho').textContent = 'R$ 0,00';
                 return;
             }
             
-            tbody.innerHTML = carrinho.map((item, index) => `
+            tbody.innerHTML = carrinho.map((item, i) => `
                 <tr>
-                    <td>${item.nome}</td>
+                    <td><strong>${item.nome}</strong></td>
                     <td>${item.quantidade}</td>
                     <td>R$ ${item.preco_unitario.toFixed(2)}</td>
-                    <td>R$ ${item.subtotal.toFixed(2)}</td>
-                    <td><button class="remover-item" onclick="removerDoCarrinho(${index})">X</button></td>
+                    <td style="color: var(--success); font-weight: bold;">R$ ${item.subtotal.toFixed(2)}</td>
+                    <td><button class="remover-item" onclick="removerDoCarrinho(${i})">✖</button></td>
                 </tr>
             `).join('');
             
@@ -415,25 +513,24 @@
 
         async function finalizarVenda() {
             if (carrinho.length === 0) {
-                alert('Carrinho vazio!');
+                mostrarMensagem('❌ Carrinho vazio!', 'erro');
                 return;
             }
             
-            const cliente_nome = document.getElementById('clienteNome').value;
-            const forma_pagamento = document.getElementById('formaPagamento').value;
+            const itens = carrinho.map(item => ({
+                produto_id: item.id,
+                quantidade: item.quantidade,
+                preco_unitario: item.preco_unitario
+            }));
             
             const venda = {
-                itens: carrinho.map(item => ({
-                    produto_id: item.id,
-                    quantidade: item.quantidade,
-                    preco_unitario: item.preco_unitario
-                })),
-                cliente_nome: cliente_nome || 'Cliente não identificado',
-                forma_pagamento: forma_pagamento
+                itens: itens,
+                cliente_nome: document.getElementById('clienteNome').value || 'Cliente',
+                forma_pagamento: document.getElementById('formaPagamento').value
             };
             
             try {
-                const res = await fetch('/api/vendas', {
+                const res = await fetch('/api/venda-simples', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(venda)
@@ -442,33 +539,29 @@
                 const data = await res.json();
                 
                 if (data.success) {
-                    const msg = document.getElementById('mensagem');
-                    msg.innerHTML = `✅ Venda finalizada! Total: R$ ${data.total.toFixed(2)}`;
-                    msg.className = 'mensagem sucesso';
-                    
-                    // Limpar carrinho
+                    const totalVenda = carrinho.reduce((s, i) => s + i.subtotal, 0);
+                    alert(`✅ Venda finalizada!\nTotal: R$ ${totalVenda.toFixed(2)}`);
                     carrinho = [];
                     atualizarCarrinho();
                     document.getElementById('clienteNome').value = '';
-                    
-                    setTimeout(() => {
-                        msg.innerHTML = '';
-                        msg.className = 'mensagem';
-                    }, 3000);
-                    
-                    // Focar no leitor
                     document.getElementById('codigoBarras').focus();
+                    mostrarMensagem('✅ Venda realizada com sucesso!', 'sucesso');
                 } else {
-                    alert('Erro ao finalizar venda');
+                    mostrarMensagem('❌ ' + (data.error || 'Erro ao finalizar'), 'erro');
                 }
             } catch (err) {
-                alert('Erro ao conectar');
+                mostrarMensagem('❌ Erro ao conectar', 'erro');
             }
         }
 
-        function logout() {
-            window.location.href = '/';
+        function mostrarMensagem(texto, tipo) {
+            const msg = document.getElementById('mensagem');
+            msg.textContent = texto;
+            msg.className = `mensagem ${tipo}`;
+            setTimeout(() => { msg.textContent = ''; msg.className = 'mensagem'; }, 3000);
         }
+
+        function logout() { window.location.href = '/'; }
     </script>
 </body>
 </html>
